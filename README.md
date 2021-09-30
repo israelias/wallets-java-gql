@@ -5,7 +5,7 @@ provider (`BankAccount`)
 built with Java [Spring Boot](https://spring.io/projects/spring-boot)
 and [GraphQL Java](https://www.graphql-java.com/) bootstrapped
 with [GraphQL Java Kickstart](https://github.com/graphql-java-kickstart) managed, bundled, tested
-via [Maven](https://maven.apache.org/)
+via [Apache Maven](https://maven.apache.org/).
 
 ## Dependencies and Plugins
 
