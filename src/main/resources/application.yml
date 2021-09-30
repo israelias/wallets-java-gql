@@ -9,7 +9,16 @@ server:
 graphql:
   servlet:
     # avoid recursion
-    maxQueryDepth: 5
+    maxQueryDepth: 100
+    exception-handlers-enables: true
   playground:
+    headers:
+      Authorization: Bearer TOKEN
+    tabs:
+      - name: Bank account sample query
+        query: classpath:playground/banks_account.grapql
+        variables: classpath:playground/bank_account_variables.json
     settings:
       request.credentiels: omit
+voyager:
+  enabled: false

@@ -2,6 +2,7 @@ package com.example.springbootgraphql.resolver.bank;
 
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
+import graphql.GraphQLException;
 import graphql.kickstart.tools.GraphQLResolver;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,8 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
     public Client client(BankAccount bankAccount) {
         log.info("Requesting client data for bank account id {}", bankAccount.getId());
 
-        return Client.builder().id(UUID.randomUUID()).firstName("Elias").lastName("Wrubel").build();
+        throw new GraphQLException("Client unavailable");
+        //        return
+        // Client.builder().id(UUID.randomUUID()).firstName("Elias").lastName("Wrubel").build();
     }
 }
