@@ -1,1 +1,12 @@
+spring:
+  application:
+    name: springboot-graphql
 
+server:
+  http2:
+    enabled: true
+
+graphql:
+  playground:
+    settings:
+      request.credentiels: omit
