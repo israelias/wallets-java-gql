@@ -1,2 +1,7 @@
-package com.example.springbootgraphql.domain.bank;public class Currency {
+package com.example.springbootgraphql.domain.bank;
+
+public enum Currency {
+  CHF,
+  USD,
+  PHP
 }
