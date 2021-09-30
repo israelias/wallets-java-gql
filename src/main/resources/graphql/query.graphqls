@@ -1,5 +1,5 @@
-# all available queries on this gql server
-
+# All available queries on this GraphQL server
+# Returns a bankaccount linked to a bankaccount id
 type Query {
     bankAccount(id: ID): BankAccount
 }
