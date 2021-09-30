@@ -7,6 +7,9 @@ server:
     enabled: true
 
 graphql:
+  servlet:
+    # avoid recursion
+    maxQueryDepth: 5
   playground:
     settings:
       request.credentiels: omit
