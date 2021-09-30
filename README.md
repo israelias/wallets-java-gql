@@ -92,13 +92,13 @@ Please refer to Philip's [starter-pack](https://github.com/philip-jvm/learn-spri
 - [IntelliJ Schemas and DTDs](https://www.jetbrains.com/help/idea/settings-languages-schemas-and-dtds.html)
 - [IntelliJ Extenal Docs Access](https://www.jetbrains.com/help/idea/sdk.html#access-external-documentation)
 
-## PMD on Maven
+### PMD on Maven
 
 - [Maven PMD Plugin Default](https://github.com/apache/maven-pmd-plugin/blob/master/src/main/resources/rulesets/java/maven-pmd-plugin-default.xml)
 - [Spring Initializer Docs](https://docs.spring.io/initializr/docs/0.4.x/reference/htmlsingle/)
 - [PMD Rule Configuration](https://pmd.github.io/latest/pmd_userdocs_configuring_rules.html)
 - [PMD Making Rulesets](https://pmd.github.io/latest/pmd_userdocs_making_rulesets.html)
 
-## Repo Benchmark
+### Repo Benchmark
 
 - [Philip Starritt Spring Boot GraphQL Tutorial](https://www.youtube.com/c/PhilipStarritt/videos)
