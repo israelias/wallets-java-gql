@@ -1,4 +1,4 @@
-package com.example.springbootgraphql.resolver;
+package com.example.springbootgraphql.resolver.bank.query;
 
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
@@ -21,14 +21,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BankAccountResolver implements GraphQLQueryResolver {
 
-  public BankAccount bankAccount(UUID id) {
-    log.info("Retrieving bank account id: {}", id);
+    public BankAccount bankAccount(UUID id) {
+        log.info("Retrieving bank account id: {}", id);
 
-    return BankAccount.builder()
-        .id(id)
-        .currency(Currency.PHP)
-        .client(
-            Client.builder().id(UUID.randomUUID()).firstName("Elias").lastName("Wrubel").build())
-        .build();
-  }
+        return BankAccount.builder()
+            .id(id)
+            .currency(Currency.PHP).build();
+    }
 }

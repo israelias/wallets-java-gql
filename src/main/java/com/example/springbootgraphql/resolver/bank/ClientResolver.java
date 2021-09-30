@@ -1,4 +1,4 @@
-package com.example.springbootgraphql.resolver.bank.query;
+package com.example.springbootgraphql.resolver.bank;
 
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
@@ -14,11 +14,6 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
     public Client client(BankAccount bankAccount) {
         log.info("Requesting client data for bank account id {}", bankAccount.getId());
 
-        return Client.builder()
-            .id(UUID.randomUUID())
-            .firstName("Elias")
-            .lastName("Wrubel")
-            .build();
+        return Client.builder().id(UUID.randomUUID()).firstName("Elias").lastName("Wrubel").build();
     }
-
 }
