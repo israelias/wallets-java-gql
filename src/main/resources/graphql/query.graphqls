@@ -1,0 +1,5 @@
+# all available queries on this gql server
+
+type Query {
+    bankAccount(id: ID): BankAccount
+}

@@ -1,0 +1,6 @@
+# Supported currencies
+enum Currency {
+    CHF
+    USD
+    PHP
+}
