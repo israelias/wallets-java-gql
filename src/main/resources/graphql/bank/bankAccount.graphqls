@@ -2,4 +2,5 @@ type BankAccount {
     id: ID!
     client: Client
     currency: Currency!
+    assets: [Asset]
 }

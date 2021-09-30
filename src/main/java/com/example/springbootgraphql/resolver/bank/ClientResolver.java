@@ -7,6 +7,9 @@ import graphql.execution.DataFetcherResult;
 import graphql.kickstart.execution.error.GenericGraphQLError;
 import graphql.kickstart.tools.GraphQLResolver;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +17,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientResolver implements GraphQLResolver<BankAccount> {
 
-    public DataFetcherResult<Client> client(BankAccount bankAccount) {
-        log.info("Requesting client data for bank account id {}", bankAccount.getId());
+    private final ExecutorService executorService =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+    public CompletableFuture<Client> client(BankAccount bankAccount) {
+        log.info("Stop me debugging");
 
-        //        throw new GraphQLException("Client unavailable");
-        // throw new RuntimeException("Spring exception can't connect to database: (sql select *)");
-        //        return
-         return DataFetcherResult.<Client>newResult()
-             .data(Client.builder().id(UUID.randomUUID()).firstName("Elias").lastName("Wrubel").build())
-             .error(new GenericGraphQLError("Could not get sub-client id"))
-             .build();
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    log.info("Requesting client data for bank account id {}", bankAccount.getId());
+                    return Client.builder()
+                            .id(UUID.randomUUID())
+                            .firstName("Elias")
+                            .lastName("Wrubel")
+                            .build();
+                },
+                executorService);
     }
 }

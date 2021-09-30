@@ -6,10 +6,6 @@ import lombok.Value;
 
 @Builder
 @Value
-public class BankAccount {
+public class Asset {
     UUID id;
-    Client client;
-    String name;
-    Currency currency;
-    Asset assets;
 }
