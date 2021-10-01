@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 // or type of error set back
 // or send the whole thing back
 
-@Component
-public class CustomGraphqlErrorHandler implements GraphQLErrorHandler {
-
-    @Override
-    public List<GraphQLError> processErrors(List<GraphQLError> errors) {
-        return errors;
-    }
-}
+// @Component
+// public class CustomGraphqlErrorHandler implements GraphQLErrorHandler {
+//
+//  //  @Override
+//  public List<GraphQLError> processErrors(List<GraphQLError> errors) {
+//    return null;
+//  }
+// }

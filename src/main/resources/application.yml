@@ -13,7 +13,7 @@ graphql:
   servlet:
     # avoid recursion
     maxQueryDepth: 100
-    exception-handlers-enables: false
+    exception-handlers-enabled: true
   playground:
     headers:
       Authorization: Bearer TOKEN
