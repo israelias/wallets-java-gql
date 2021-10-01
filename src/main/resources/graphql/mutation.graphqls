@@ -1,4 +1,6 @@
 scalar NonNegativeInt
+scalar DateTime
+scalar Date
 
 # All mutations available in GraphQL
 type Mutation {
