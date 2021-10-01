@@ -1,4 +1,8 @@
 # All mutations available in GraphQL
 type Mutation {
+    # Create a bank account
     createBankAccount(input: CreateBankAccountInput!): BankAccount!
+
+    # Upload a file
+    uploadFile: ID!
 }

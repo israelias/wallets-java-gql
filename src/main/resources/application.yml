@@ -1,6 +1,9 @@
 spring:
   application:
     name: springboot-graphql
+  servlet:
+    multipart:
+      max-file-size: 2MB
 
 server:
   http2:
@@ -14,11 +17,13 @@ graphql:
   playground:
     headers:
       Authorization: Bearer TOKEN
-    #    tabs:
-    #      - name: Bank account sample query
-    #        query: classpath:playground/bank_account.grapql
-    #        variables: classpath:playground/bank_account_variables.json
+    tabs:
+      - name: Bank account sample query
+        query: classpath:playground/bank_account.graphql
+        variables: classpath:playground/bank_account_variables.json
     settings:
       request.credentiels: omit
+    # disable in prod
+    enabled: true
 voyager:
   enabled: false
