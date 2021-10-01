@@ -35,15 +35,9 @@ public class BankAccountResolver implements GraphQLQueryResolver {
      *   <dt>or if we need to perform operations if user requests a&b | a&c | a
      *   <dd>{@code environment.getSelectionSet().containsAnyOf(a&b) | containsAllOf(a)}
      *   <dt>or perform an operation if one particular field is called
-     *   <dd>{@code
-     *          if (environment.getSelectionSet().contains('specialField')) {
-     *            //do special stuff
-     *          }
-     *       }
-     *       </dl
+     *   <dd>{@code if (environment.getSelectionSet().contains('specialField')) { //do special stuff
+     *       } } </dl
      */
-
-
     var requestedFields =
         environment.getSelectionSet().getFields().stream()
             .map(SelectedField::getName)
