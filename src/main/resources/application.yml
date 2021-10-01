@@ -22,8 +22,8 @@ graphql:
         query: classpath:playground/bank_account.graphql
         variables: classpath:playground/bank_account_variables.json
     settings:
-      request.credentiels: omit
+      request.credentials: omit
     # disable in prod
-    enabled: true
+    # enabled: true
 voyager:
-  enabled: false
+  enabled: true

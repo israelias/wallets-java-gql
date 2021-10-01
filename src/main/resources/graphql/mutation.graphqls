@@ -1,3 +1,5 @@
+scalar NonNegativeInt
+
 # All mutations available in GraphQL
 type Mutation {
     # Create a bank account
