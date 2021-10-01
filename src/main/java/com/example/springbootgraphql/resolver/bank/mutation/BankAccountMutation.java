@@ -5,7 +5,11 @@ import com.example.springbootgraphql.domain.bank.Currency;
 import com.example.springbootgraphql.domain.bank.input.CreateBankAccountInput;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +30,19 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class BankAccountMutation implements GraphQLMutationResolver {
 
-  public BankAccount createBankAccount(CreateBankAccountInput input, DataFetchingEnvironment e) {
-    //      e.g
+  private final Clock clock;
+
+  public BankAccount createBankAccount(CreateBankAccountInput input) {
     log.info("Creating bank account for {}", input);
 
-    return BankAccount.builder().id(UUID.randomUUID()).currency(Currency.PHP).build();
+    return BankAccount.builder()
+        .id(UUID.randomUUID())
+        .currency(Currency.PHP)
+        .createdAt(ZonedDateTime.now(clock))
+        .createdOn(LocalDate.now(clock))
+        .build();
   }
 }
