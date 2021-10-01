@@ -8,8 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ScalarConfig {
 
-  // Alternatively you can implement your own by extending the GraphQLScalarType
-  // and implement at Coercing interface
+  /**
+   *   This extends GraphQLScalarTypes directly from the schema library.
+   *   Alternatively we could implement our own scalars by extending the
+   *   GraphQLScalarType and implementing a Coercing interface.
+   */
+
   @Bean
   public GraphQLScalarType nonNegativeInt() {
     return ExtendedScalars.NonNegativeInt;

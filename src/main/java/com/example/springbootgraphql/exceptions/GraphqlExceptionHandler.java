@@ -6,11 +6,14 @@ import javax.validation.ConstraintViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-// Invoke correct exception handlers
-// Since exceptions are enabled, we need to catch runtime handlers
-// along with the custom graphql handler so that not all exceptions
-// are invoked and/or they are all controlled
-
+/**
+ * GraphqlExceptionHandler
+ *
+ * <p>Since exceptions are enabled, exceptions will be raised everywhere (schema errors, runtime errors).
+ * So we need to cover our bases by catching those errors and defining runtime handlers along with any/all
+ * GraphQLExceptionHandlers or GraphQLErrorHandlers.
+ * This ensures that not all exceptions are invoked as they are in our control, or are only invoked within our control.
+ */
 @Component
 public class GraphqlExceptionHandler {
 

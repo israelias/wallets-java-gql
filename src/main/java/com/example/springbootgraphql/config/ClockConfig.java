@@ -4,11 +4,13 @@ import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// Instead of using .now() for local, offset, zone date times,
-// we can call .now(Clock) which means we can mock the clock's response
-// in tests/integration tests etc without having to worry about exact
-// runtime values
-
+/**
+ * ClockConfig
+ *
+ * <p>Instead of using .now() for local, offset, zone date times, we can call .now(Clock) in order
+ * to mock the clock's response in unit/integration tests without having to worry about exact
+ * runtime values
+ */
 @Configuration
 public class ClockConfig {
 

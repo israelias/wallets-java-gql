@@ -15,21 +15,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-// Specifying DataFetchinigEnvironment as the last parameter in the resolver
-// ensures that the framework will automatically inject this in and give you
-// access to it. If there are no parameters, we can specify it as the only
-// on the resolver. The Environment allows us access to key methods, and functionalities
-// such as fields, (selectionset). All fields selected by the user. You could transform
-// it into your sql query directory to optimize performace.
-// Context access: created once on the query, will always stay the same and will be
-// propagated through all the resolvers ( for auth data ).
-// Variables:
-// Args:
-// Dataloaders: (solve n + 1 problem)
-// https://javadoc.io/doc/com.graphql-java/graphql-java/12.0/graphql/schema/DataFetchingEnvironment.html
-// https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingEnvironment.java
-// https://www.graphql-java.com/documentation/v11/data-fetching/
-
+/**
+ * BankAccountMutation
+ *
+ * <p>Specifying DataFetchingEnvironment as the last parameter in the resolver ensures that the
+ * framework will automatically inject this in and give you access to it. If there are no
+ * parameters, we can specify it as the only one on the resolver.
+ *
+ * @see {@link com.example.springbootgraphql.resolver.bank.query.BankAccountResolver} The
+ *     Environment allows us access to key methods and functionalities such as
+ *     <ul>
+ *       <li>fields (All fields selected by the user)
+ *       <li>selectionset (You could transform it into your sql query directory to optimize
+ *           performace)
+ *       <li>context (created once on the query, will always stay the same and will be propagated
+ *           through all the resolvers, useful for auth data.
+ *       <li>variables
+ *       <li>args
+ *       <li>dataLoaders (which solve the n+1 problem {@url
+ *           "https://medium.com/the-marcy-lab-school/what-is-the-n-1-problem-in-graphql-dd4921cb3c1a"})
+ *     </ul>
+ *
+ * @see {java-doc DataFetchingEnvironment
+ *     "https://javadoc.io/doc/com.graphql-java/graphql-java/12.0/graphql/schema/DataFetchingEnvironment.html"}
+ * @see {graphql-java repo DataFetchingEnvironment
+ *     "https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingEnvironment.java"}
+ *
+ * @see {graphql-java DataFetching "https://www.graphql-java.com/documentation/v11/data-fetching/"}
+ * @author Joem Elias Sanez
+ * @since 2021-10-02
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
