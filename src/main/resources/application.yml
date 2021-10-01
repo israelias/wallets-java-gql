@@ -14,10 +14,10 @@ graphql:
   playground:
     headers:
       Authorization: Bearer TOKEN
-    tabs:
-      - name: Bank account sample query
-        query: classpath:playground/banks_account.grapql
-        variables: classpath:playground/bank_account_variables.json
+    #    tabs:
+    #      - name: Bank account sample query
+    #        query: classpath:playground/bank_account.grapql
+    #        variables: classpath:playground/bank_account_variables.json
     settings:
       request.credentiels: omit
 voyager:

@@ -9,3 +9,12 @@ query GET_BANK_ACCOUNT($id: ID) {
         }
     }
 }
+
+# Create bank account
+mutation CREATE_BANK_ACCOUNT {
+    createBankAccount(input: {
+        firstName: "elias"  }) {
+        id
+        currency
+    }
+}
