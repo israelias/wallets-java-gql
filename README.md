@@ -64,6 +64,97 @@ via [Apache Maven](https://maven.apache.org/).
 - [maven-pmd-plugin](http://maven.apache.org/plugins/maven-pmd-plugin/): automatically run the PMD
   code analysis tool on your project's source code and generate a site report with its results
 
+## Notes
+
+### Optimization
+
+- [SelectionSet](https://www.graphql-java.com/documentation/v11/data-fetching/)
+- [Field selection](https://www.graphql-java.com/documentation/v12/fieldselection/)
+- [DataFetchingFieldSelectionSet](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingFieldSelectionSet.java)
+
+A very powerful feature of graphql spring boot is that you have access to the query's selection set.
+A selection set is the set of fields the user requested.
+
+Having direct access to the fields can enable you to make performance optimized queries requesting
+only the needed data. For example an SQL backed system may be able to use the field sub selection to
+only retrieve the columns that have been asked for.
+
+If you look ahead in the selection set, you may be able to optimize further and collapse two backend
+resource calls into one. For example, if you can retrieve the sellingLocations data within the
+products API call. You can group everything into one API query instead of two.
+
+```graphql
+query {
+    products {
+        # the fields below represent the selection set
+        name
+        description
+        sellingLocations {
+            state
+        }
+    }
+}
+```
+
+The selection set `DataFetchingFieldSelectionSet` contains many useful utility methods such as:
+`contains`, `containsAnyOf`, `containsAnyOf`. These can be used as the predicate to make your API
+call selection.
+
+To get the requested field names you can stream the fields, filter and collect into a set.
+
+### Scalars
+
+- [Extended Scalars](https://github.com/graphql-java/graphql-java-extended-scalars)
+
+### Validation
+
+There are two ways of validating your graphql input types, via `Directives` or manually validating
+the input type in your resolver. The following shows both the more old-school approach which puts
+the
+`JSR-303` bean validation annotations on our `POJO`s; along with a `Schema Directive` approach:
+
+```java
+
+@Slf4j
+@Validated
+@Component
+@RequiredArgsConstructor
+public class BankAccountMutation implements GraphQLMutationResolver {
+
+  private final Clock clock;
+
+  /**
+   * JSR-303 Bean Validation 
+   */
+  public BankAccount createBankAccount(@Valid CreateBankAccountInput input) {
+    log.info("Creating bank account for {}", input);
+    return getBankAccount(UUID.randomUUID());
+  }
+
+  /**
+   * Schema Directive Validation 
+   */
+  public BankAccount updateBankAccount(UUID id, String name, int age) {
+    log.info("Updating bank account for {}. Name: {}, age: {}", id, name, age);
+    return getBankAccount(id);
+  }
+
+}
+```
+
+The Directive version implements `graphql-java-extended-validation` which allow us to remove all
+java bean validation annotations, and instead place the annotations directly on the schema.
+
+### Port 8080 is in use
+
+- [Kill 8080](https://stackoverflow.com/questions/40118878/8080-port-already-taken-issue-when-trying-to-redeploy-project-from-spring-tool-s)
+
+```bash
+sudo lsof -i tcp:8181
+
+kill -9 PID
+```
+
 ## Spring Initializer Disclaimers
 
 The following was discovered as part of building this project:
@@ -91,6 +182,7 @@ Please refer to Philip's [starter-pack](https://github.com/philip-jvm/learn-spri
 
 - [IntelliJ Schemas and DTDs](https://www.jetbrains.com/help/idea/settings-languages-schemas-and-dtds.html)
 - [IntelliJ Extenal Docs Access](https://www.jetbrains.com/help/idea/sdk.html#access-external-documentation)
+- [IntelliJ Shared Indexes](https://www.jetbrains.com/help/idea/shared-indexes.html#project-shared-indexes)
 
 ### PMD on Maven
 
