@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This listener is shared among threads, which is why we don't save any state in the listener object.
  * Here a new callback is returned per method invocation. If we want to save some state on the thread,
- * we would implement the use of ThreadLocal 
+ * we would implement the use of ThreadLocal
  */
 @Slf4j
 @Component

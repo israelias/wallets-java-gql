@@ -1,5 +1,7 @@
 # All available queries on this GraphQL server
-# Returns a bankaccount linked to a bankaccount id
 type Query {
+    # Returns a BankAccount linked to a BankAccount id
     bankAccount(id: ID): BankAccount
+    # Returns a BankAccountConnection Relay connection wrapper
+    bankAccounts(first: Int!, after: String): BankAccountConnection @connection (for: "BankAccount")
 }
