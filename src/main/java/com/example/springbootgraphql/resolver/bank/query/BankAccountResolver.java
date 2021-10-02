@@ -12,22 +12,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * BankAccountResolver
+ * BankAccountResolver implements {@link GraphQLQueryResolver} to pick up all classes that
+ * implements this type, which then looks for a matching signature of the method {@code
+ * bankAccount(UUID id)} to the GraphQL-defined query {@code bankAccount(id: ID): BankAccount}.
  *
- * <p>GraphQLQueryResolver acts as a marker interface For framework to pick up all classes that
- * implements the GQLQueryResolver Marker Interface It then looks for a matching signature of the
- * method to a GQL-defined query Here we have a matching bank account response, that takes in id
- * with matching query name to the bankAccount query type
+ * @see <a href="file:../../../../../../../../resources/graphql/query.graphqls">query.graphqls</a>
  */
 @Slf4j
 @Component
 public class BankAccountResolver implements GraphQLQueryResolver {
 
+  /**
+   * bankAccount
+   * <p>Method that takes in {@code id} with a response {@link BankAccount} and query
+   * name {@code bankAccount} that both match the `BankAccount` Java class and the `bankAccount` GraphQL-defined query
+   *
+   * @param id a {@link UUID} input
+   * @param environment {@link DataFetchingEnvironment} as last param
+   * @return a {@link BankAccount} instance
+   */
   public BankAccount bankAccount(UUID id, DataFetchingEnvironment environment) {
     log.info("Retrieving bank account id: {}", id);
 
     /**
-     * Options
+     * requestedFields
+     * <p>DataFetchingEnvironment
      *
      * <dl>
      *   <dt>contains what fields the user has selected to include in query
@@ -35,8 +44,8 @@ public class BankAccountResolver implements GraphQLQueryResolver {
      *   <dt>or if we need to perform operations if user requests a&b | a&c | a
      *   <dd>{@code environment.getSelectionSet().containsAnyOf(a&b) | containsAllOf(a)}
      *   <dt>or perform an operation if one particular field is called
-     *   <dd>{@code if (environment.getSelectionSet().contains('specialField')) { //do special stuff
-     *       } } </dl
+     *   <dd>{@code if (environment.getSelectionSet().contains('specialField'))  //do special stuff
+     *        } </dl
      */
     var requestedFields =
         environment.getSelectionSet().getFields().stream()

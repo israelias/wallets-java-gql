@@ -22,26 +22,29 @@ import org.springframework.validation.annotation.Validated;
  * framework will automatically inject this in and give you access to it. If there are no
  * parameters, we can specify it as the only one on the resolver.
  *
- * @see {@link com.example.springbootgraphql.resolver.bank.query.BankAccountResolver} The
- *     Environment allows us access to key methods and functionalities such as
- *     <ul>
- *       <li>fields (All fields selected by the user)
- *       <li>selectionset (You could transform it into your sql query directory to optimize
- *           performace)
- *       <li>context (created once on the query, will always stay the same and will be propagated
- *           through all the resolvers, useful for auth data.
- *       <li>variables
- *       <li>args
- *       <li>dataLoaders (which solve the n+1 problem {@url
- *           "https://medium.com/the-marcy-lab-school/what-is-the-n-1-problem-in-graphql-dd4921cb3c1a"})
- *     </ul>
+ * <p>{@link com.example.springbootgraphql.resolver.bank.query.BankAccountResolver
+ * BankAccountResolver} The Environment allows us access to key methods and functionalities such as
  *
- * @see {java-doc DataFetchingEnvironment
- *     "https://javadoc.io/doc/com.graphql-java/graphql-java/12.0/graphql/schema/DataFetchingEnvironment.html"}
- * @see {graphql-java repo DataFetchingEnvironment
- *     "https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingEnvironment.java"}
+ * <ul>
+ *   <li>fields (All fields selected by the user)
+ *   <li>selectionset (You could transform it into your sql query directory to optimize performace)
+ *   <li>context (created once on the query, will always stay the same and will be propagated
+ *       through all the resolvers, useful for auth data.
+ *   <li>variables
+ *   <li>args
+ *   <li>dataLoaders (which solve the n+1 problem See <a
+ *       href="https://medium.com/the-marcy-lab-school/what-is-the-n-1-problem-in-graphql-dd4921cb3c1a">
+ *       Medium</a>
+ * </ul>
  *
- * @see {graphql-java DataFetching "https://www.graphql-java.com/documentation/v11/data-fetching/"}
+ * @see <a
+ *     href="https://javadoc.io/doc/com.graphql-java/graphql-java/12.0/graphql/schema/DataFetchingEnvironment.html">
+ *     java-doc DataFetchingEnvironment</a>
+ * @see <a
+ *     href="https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingEnvironment.java">
+ *     graphql-java GitHub DataFetchingEnvironment</a>
+ * @see <a href="https://www.graphql-java.com/documentation/v11/data-fetching/">graphql-java
+ *     DataFetching</a>
  * @author Joem Elias Sanez
  * @since 2021-10-02
  */
