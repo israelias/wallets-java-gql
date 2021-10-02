@@ -80,18 +80,28 @@ public class BankAccountResolver implements GraphQLQueryResolver {
   public Connection<BankAccount> bankAccounts(int first, @Nullable String cursor) {
 
     List<Edge<BankAccount>> edges =
-        bankAccountRepository.getBankAccounts().stream()
+        getBankAccounts(cursor).stream()
             .map(
-                bankAccount -> new DefaultEdge<>(bankAccount, cursorUtil.from(bankAccount.getId())))
+                bankAccount ->
+                    new DefaultEdge<>(
+                        bankAccount, cursorUtil.createCursorWith(bankAccount.getId())))
+            .limit(first)
             .collect(Collectors.toUnmodifiableList());
 
-    var firstCursor = cursorUtil.getFirstCursorFrom(edges);
-
-    var lastCursor = cursorUtil.getLastCursorFrom(edges);
-
     var pageInfo =
-        new DefaultPageInfo(firstCursor, lastCursor, cursor != null, edges.size() >= first);
+        new DefaultPageInfo(
+            cursorUtil.getFirstCursorFrom(edges),
+            cursorUtil.getLastCursorFrom(edges),
+            cursor != null,
+            edges.size() >= first);
 
     return new DefaultConnection<>(edges, pageInfo);
+  }
+
+  public List<BankAccount> getBankAccounts(String cursor) {
+    if (cursor == null) {
+      return bankAccountRepository.getBankAccounts();
+    }
+    return bankAccountRepository.getBankAccountsAfter(cursorUtil.decode(cursor));
   }
 }

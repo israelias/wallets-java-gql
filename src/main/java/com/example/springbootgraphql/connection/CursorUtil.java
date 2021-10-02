@@ -13,9 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class CursorUtil {
 
-  public ConnectionCursor from(UUID id) {
+  public ConnectionCursor createCursorWith(UUID id) {
     return new DefaultConnectionCursor(
         Base64.getEncoder().encodeToString(id.toString().getBytes(StandardCharsets.UTF_8)));
+  }
+
+  public UUID decode(String cursor) {
+    return UUID.fromString(new String(Base64.getDecoder().decode(cursor)));
   }
 
   public <T> ConnectionCursor getFirstCursorFrom(List<Edge<T>> edges) {

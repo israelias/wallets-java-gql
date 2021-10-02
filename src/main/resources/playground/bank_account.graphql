@@ -10,6 +10,24 @@ query GET_BANK_ACCOUNT($id: ID) {
     }
 }
 
+query GET_BANK_ACCOUNTS {
+    bankAccounts(first: 5) {
+        edges {
+            cursor
+            node {
+                id
+                createdAt
+            }
+        }
+        pageInfo {
+            hasPreviousPage
+            hasNextPage
+            startCursor
+            endCursor
+        }
+    }
+}
+
 # Create bank account
 mutation CREATE_BANK_ACCOUNT {
     createBankAccount(input: {
