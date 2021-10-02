@@ -66,6 +66,41 @@ via [Apache Maven](https://maven.apache.org/).
 
 ## Notes
 
+### Async Resolvers
+
+You can make graphql resolvers execute asynchronously by setting the return type to a
+`CompletableFuture` and executing the logic within another thread. This of course does not work if
+you do your logic as normal then return a `CompletableFuture.completedFuture(u)`. As here the logic
+processing will occur in the graphql user thread.
+
+Async resolvers permit the graphql server to execute multiple resolver methods in parallel. For
+resolvers to execute in parallel, they must not depend on each other (parent/child fields).
+
+Executing in parallel is useful if the client requests multiple fields that do not depend on each
+other and could take a considerable amount of time to fetch. We now have response times of
+worst-of (resolver A latency, resolver B latency) instead of resolver A latency + resolver B
+latency.
+
+Take time to size and shape your `threadpools`, keep an eye on them over time.
+
+Also, be aware that when you execute resolvers async, then the child resolvers will execute in it's
+parents async thread (See below: standard `CompletableFuture` chain).
+
+```graphql
+a {
+# not async - tomcat user thread UT1
+b {
+# async - Thread 1 - Pool 1
+c {
+# not async - executed in Thread 1 - Pool 1
+}
+}
+d {
+# not async - tomcat user thread UT1
+}
+}
+```
+
 ### Optimization
 
 - [SelectionSet](https://www.graphql-java.com/documentation/v11/data-fetching/)
