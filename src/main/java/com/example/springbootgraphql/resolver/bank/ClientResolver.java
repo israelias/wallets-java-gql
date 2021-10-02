@@ -49,7 +49,12 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    * <p>Execute asynchronously by setting the return type to a CompletableFuture and executing the
    * logic within another thread.
    *
-   * @param bankAccount the {@link BankAccount instance being resolved}
+   * <p>Method {@code client} must match the field name `client` in `bankAccount.graphqls`
+   *
+   * <p>BankAccount param passed from parent: as BankAccount resolves, it passes itself to its child
+   * resolver `client` if it is included in the requested fields
+   *
+   * @param bankAccount the {@link BankAccount instance passed from the parent being resolved}
    * @return a new {@link CompletableFuture} that is asynchronously completed by a task running in
    *     the given {@code executorService} with the value obtained by calling the given {@code
    *     Supplier – a function returning the value to be used to complete the returned
