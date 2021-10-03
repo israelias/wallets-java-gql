@@ -10,6 +10,7 @@ query GET_BANK_ACCOUNT($id: ID) {
     }
 }
 
+# Gets all bank accounts
 query GET_BANK_ACCOUNTS {
     bankAccounts(first: 5) {
         edges {

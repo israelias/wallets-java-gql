@@ -17,6 +17,7 @@ graphql:
   playground:
     headers:
       Authorization: Bearer TOKEN
+      user_id: IDJ|Elias
     tabs:
       - name: Bank account sample query
         query: classpath:playground/bank_account.graphql
