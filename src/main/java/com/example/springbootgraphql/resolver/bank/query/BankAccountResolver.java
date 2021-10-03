@@ -2,6 +2,7 @@ package com.example.springbootgraphql.resolver.bank.query;
 
 import com.example.springbootgraphql.BankAccountRepository;
 import com.example.springbootgraphql.connection.CursorUtil;
+import com.example.springbootgraphql.context.CustomGraphQLContext;
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
 import com.example.springbootgraphql.domain.bank.Currency;
@@ -47,11 +48,15 @@ public class BankAccountResolver implements GraphQLQueryResolver {
    * query
    *
    * @param id a {@link UUID} input
-   * @param environment {@link DataFetchingEnvironment} as last param
+   * @param environment {@link DataFetchingEnvironment} as last param created once
    * @return a {@link BankAccount} instance
    */
   public BankAccount bankAccount(UUID id, DataFetchingEnvironment environment) {
     log.info("Retrieving bank account id: {}", id);
+
+    CustomGraphQLContext context = environment.getContext();
+
+    log.info("User ID: {}", context.getUserId());
 
     /**
      * requestedFields
