@@ -6,6 +6,47 @@ and [GraphQL Java](https://www.graphql-java.com/) bootstrapped
 with [GraphQL Java Kickstart](https://github.com/graphql-java-kickstart) managed, bundled, tested
 via [Apache Maven](https://maven.apache.org/).
 
+## Available Scripts
+
+### Maven Wrapper
+
+The project uses [Takari Maven plugin](https://github.com/takari/takari-maven-plugin) to upstream to the Apache Maven
+project via [Maven Wrapper](https://github.com/takari/maven-wrapper) to make auto installation in a simple Spring Boot
+project.
+
+Note: we use the executable `mvnw` in place of `mvn`, which stands now as the Maven command line program.
+See [maven-plugin](https://docs.spring.io/spring-boot/docs/2.5.5/maven-plugin/reference/htmlsingle/#?) (Docs).
+See [repackage-example-exclude-dependancy](https://docs.spring.io/spring-boot/docs/2.3.x/maven-plugin/reference/html/#repackage-example-exclude-dependency)
+
+- #### `./mvnw spring-boot:run`
+  Run the application in place.
+
+- #### `./mvnw spring-boot:start`
+  Start a spring application. Contrary to the run goal, this does not block and allows other goals to operate on the
+  application. This goal is typically used in integration test scenario where the application is started before a test
+  suite and stopped after.
+
+- #### `./mvnw spring-boot:stop`
+  Stop an application that has been started by the 'start' goal. Typically invoked once a test suite has completed.
+
+- #### `./mvnw spring-boot:build-image`
+  Package an application into a OCI image using a buildpack.
+
+- #### `./mvnw spring-boot:build-info`
+  Generate a `build-info.properties` file based on the content of the current MavenProject.
+
+- #### `./mvnw spring-boot:help`
+  Display help information on `spring-boot-maven-plugin`.
+  Call `./mvnw spring-boot:help -Ddetail=true -Dgoal=<goal-name>` to display parameter details.
+
+- #### `./mvnw spring-boot:repackage`
+  Repackage existing `JAR` and `WAR` archives so that they can be executed from the command line using `java -jar`.
+  With `layout=NONE` can also be used simply to package a `JAR` with nested dependencies (and no main class, so not
+  executable).
+
+- #### `./mvnw clean install`
+  Run the wrapper script without requiring maven. Run `./mvnw.cmd clean install` to batch.
+
 ## Dependencies and Plugins
 
 ### Dependencies
@@ -185,6 +226,17 @@ supplies the edge's cursor to the 'after'.
 
 Essentially, it is much like a `Flask-Restful-Mongo` Pagination wrapper class in Python but without a numerical value to
 the page. Only an encoded pointer to `previous/current/next`.
+
+### Custom Context
+
+In graphql spring boot, we have the ability to create a custom object once at the very start of the query/mutation, and
+this object will be available to all mutations and queries via the `DataFetchingEnvironment`. The custom object can be
+any type, and is never used by the internal graphql java framework.
+
+As the context is created once and available in all revolvers; a common use-case to store user authorization data such
+as user id, permissions and roles. This data can then be used to perform authorization on our mutation and resolvers. An
+alternative to this is `spring security` and pass the` security context` to other threads via
+`DelegatingSecurityContextExecutorService`. But the context file can contain anything we wish.
 
 ### Port 8080 is in use
 
