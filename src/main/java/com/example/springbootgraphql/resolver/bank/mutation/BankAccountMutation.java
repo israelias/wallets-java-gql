@@ -4,7 +4,6 @@ import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Currency;
 import com.example.springbootgraphql.domain.bank.input.CreateBankAccountInput;
 import graphql.kickstart.tools.GraphQLMutationResolver;
-import graphql.schema.DataFetchingEnvironment;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -22,8 +21,9 @@ import org.springframework.validation.annotation.Validated;
  * framework will automatically inject this in and give you access to it. If there are no
  * parameters, we can specify it as the only one on the resolver.
  *
- * <p>{@link com.example.springbootgraphql.resolver.bank.query.BankAccountResolver
- * BankAccountResolver} The Environment allows us access to key methods and functionalities such as
+ * <p>{@link com.example.springbootgraphql.resolver.bank.query.BankAccountQueryResolver
+ * BankAccountQueryResolver} The Environment allows us access to key methods and functionalities
+ * such as
  *
  * <ul>
  *   <li>fields (All fields selected by the user)

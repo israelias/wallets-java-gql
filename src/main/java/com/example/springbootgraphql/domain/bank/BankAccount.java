@@ -1,5 +1,6 @@
 package com.example.springbootgraphql.domain.bank;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -15,4 +16,5 @@ public class BankAccount {
   Asset assets;
   ZonedDateTime createdAt;
   LocalDate createdOn;
+  BigDecimal balance;
 }

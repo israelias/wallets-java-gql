@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
- * BankAccountResolver implements {@link GraphQLQueryResolver} to pick up all classes that
+ * BankAccountQueryResolver implements {@link GraphQLQueryResolver} to pick up all classes that
  * implements this type, which then looks for a matching signature of the method {@code
  * bankAccount(UUID id)} to the GraphQL-defined query {@code bankAccount(id: ID): BankAccount}.
  *
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BankAccountResolver implements GraphQLQueryResolver {
+public class BankAccountQueryResolver implements GraphQLQueryResolver {
 
   /** Inject bankAccountRepository */
   private final BankAccountRepository bankAccountRepository;
