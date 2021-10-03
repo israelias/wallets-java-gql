@@ -61,7 +61,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    *     CompletableFuture}.
    */
   public CompletableFuture<Client> client(BankAccount bankAccount) {
-    log.info("Stop me debugging");
+    // log.info("Stop me debugging");
 
     return CompletableFuture.supplyAsync(
         () -> {

@@ -4,17 +4,18 @@ import com.example.springbootgraphql.BankAccountRepository;
 import com.example.springbootgraphql.connection.CursorUtil;
 import com.example.springbootgraphql.context.CustomGraphQLContext;
 import com.example.springbootgraphql.domain.bank.BankAccount;
-import com.example.springbootgraphql.domain.bank.Client;
 import com.example.springbootgraphql.domain.bank.Currency;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import graphql.relay.Connection;
-import graphql.relay.ConnectionCursor;
 import graphql.relay.DefaultConnection;
 import graphql.relay.DefaultEdge;
 import graphql.relay.DefaultPageInfo;
 import graphql.relay.Edge;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.SelectedField;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class BankAccountQueryResolver implements GraphQLQueryResolver {
   private final BankAccountRepository bankAccountRepository;
 
   private final CursorUtil cursorUtil;
+  private final Clock clock;
 
   /**
    * bankAccount
@@ -79,7 +81,12 @@ public class BankAccountQueryResolver implements GraphQLQueryResolver {
 
     log.info("Requested Fields: {}", requestedFields);
 
-    return BankAccount.builder().id(id).currency(Currency.PHP).build();
+    return BankAccount.builder()
+        .id(id)
+        .currency(Currency.PHP)
+        .createdAt(ZonedDateTime.now(clock))
+        .createdOn(LocalDate.now(clock))
+        .build();
   }
 
   public Connection<BankAccount> bankAccounts(int first, @Nullable String cursor) {
