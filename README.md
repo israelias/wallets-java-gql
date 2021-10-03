@@ -134,6 +134,77 @@ d {
 }
 ```
 
+### DataLoader (N+1 Problem)
+
+By default, a `GraphQLQueryResolver` will resolve a field's nodes sequentially. When we have a list (
+see [Hashed Cursor-Based-Pagination](#hashed-cursor-based-pagination)) of nodes, the Resolver will resolve each node's
+fields sequentially.
+
+For example if we have 2 nodes (`Node1`, `Node2`) with `Field X` in the `SelectionSet`, it will execute
+the `QueryResolver`
+first, then the `Resolver` for `Node1 Field X` followed by `Node2 Field X`. This is the `N+1 problem`.
+
+A small backend API latency can potentially introduce massive latency into our GraphQL API. That is with `dataloader`
+neglect.
+
+In most cases we would want to group together `Field X` values and batch them to the backing API. This leads to massive
+performance gains in reduction of network traffic and optimal database queries on the datasource.
+
+In the `context.dataloader` package, we implement `Java graphql dataloader` (a direct port
+of [Facebook's dataloader](https://github.com/graphql/dataloader)) to solve this problem. We can easily
+use `CompletableFutures` to load the `ID`s and using a `mapped batch dataloader`. With the `DataLoader` creation we can
+customize the cache and maximum batch size with the `DataLoaderOptions`
+parameter.
+
+Often there is not a 1:1 mapping of our batch-loaded keys to the values returned. For example, an `SQL` query may return
+fewer results than query `ID`s (does not exist or duplicates). If we used the classic dataloader, then the values would
+be returned into the wrong requesting nodes and the last (requested `ID`s minus responded `ID`s) would have `null`
+values. This is because it maps 1:1 by default.
+
+To get around this, we can return a `map` from the `dataloader` function. When the `map` is processed by
+the `DataLoader` code, any keys that are missing in the `map` will be replaced with `null` values. The semantic that
+__the number of `DataLoader.load` requests are matched with an equal number of values__ is kept.
+
+The keys provided __must__ be `first` class keys since they will be used to examine the returned map and create the list
+of results, with `nulls` filling in for missing values.
+
+To test this, implement a version
+of [BankAccountResolver](src/main/java/com/example/springbootgraphql/resolver/bank/query/BankAccountResolver.java)'
+s `balance` method that throws an `InterruptedException` via `Thread.sleep(x)` as per below.
+
+```java
+
+@Slf4j
+@Component
+public class BankAccountResolver implements GraphQLResolver<BankAccount> {
+
+  public BigDecimal balance(BankAccount bankAccount) throws InterruptedException {
+    Thread.sleep(3000L);
+    log.info("Getting balance for {}", bankAccount.getId());
+    return BigDecimal.ONE;
+  }
+
+}
+```
+
+The result is: a sequential execution of threads as opposed to un-ordered/non-sequential resolutions by pool. (Let alone
+taking 11 seconds to complete).
+
+```bash
+2021-10-03 22:46:35.948  INFO 38459 --- [nio-8080-exec-2] c.e.s.listener.LoggingListener           : Received GraphQL request.
+2021-10-03 22:46:35.962  INFO 38459 --- [pool-2-thread-2] c.e.s.resolver.bank.ClientResolver       : Requesting client data for bank account id c6aa269a-812b-49d5-b178-a739a1ed74cc
+2021-10-03 22:46:36.464  INFO 38459 --- [nio-8080-exec-2] c.e.s.r.bank.query.BankAccountResolver   : Getting balance for c6aa269a-812b-49d5-b178-a739a1ed74cc
+2021-10-03 22:46:36.469  INFO 38459 --- [pool-2-thread-3] c.e.s.resolver.bank.ClientResolver       : Requesting client data for bank account id 024bb503-5c0f-4d60-aa44-db19d87042f4
+2021-10-03 22:46:36.971  INFO 38459 --- [nio-8080-exec-2] c.e.s.r.bank.query.BankAccountResolver   : Getting balance for 024bb503-5c0f-4d60-aa44-db19d87042f4
+2021-10-03 22:46:36.973  INFO 38459 --- [pool-2-thread-4] c.e.s.resolver.bank.ClientResolver       : Requesting client data for bank account id 410f5919-e50b-4790-aae3-65d2d4b21c77
+2021-10-03 22:46:37.475  INFO 38459 --- [nio-8080-exec-2] c.e.s.r.bank.query.BankAccountResolver   : Getting balance for 410f5919-e50b-4790-aae3-65d2d4b21c77
+2021-10-03 22:46:37.477  INFO 38459 --- [pool-2-thread-5] c.e.s.resolver.bank.ClientResolver       : Requesting client data for bank account id 48e4a484-af2c-4366-8cd4-25330597473f
+2021-10-03 22:46:37.981  INFO 38459 --- [nio-8080-exec-2] c.e.s.r.bank.query.BankAccountResolver   : Getting balance for 48e4a484-af2c-4366-8cd4-25330597473f
+2021-10-03 22:46:37.987  INFO 38459 --- [nio-8080-exec-2] c.e.s.listener.LoggingListener           : Completed Request. Time Taken: PT2.117868S
+```
+
+Note: The resolutions are typically resolved entirely out of sequence thanks to the [Async Resolvers](#async-resolvers)
+
 ### Optimization
 
 - [SelectionSet](https://www.graphql-java.com/documentation/v11/data-fetching/)
