@@ -15,6 +15,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class BankAccountResolver implements GraphQLResolver<BankAccount> {
 
+  /**
+   * BalanceResolver
+   *
+   * @param bankAccount
+   * @param environment
+   * @return dataLoader#load() Function that loads the bankAccount id to the dataLoader {@code
+   *     bankAccount.getID()}
+   */
   public CompletableFuture<BigDecimal> balance(
       BankAccount bankAccount, DataFetchingEnvironment environment) {
 
