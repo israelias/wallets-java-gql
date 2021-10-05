@@ -11,9 +11,9 @@ server:
 
 graphql:
   servlet:
-    # avoid recursion
     maxQueryDepth: 100
     exception-handlers-enabled: true
+    tracingEnabled: true
   playground:
     headers:
       Authorization: Bearer TOKEN
@@ -22,9 +22,15 @@ graphql:
       - name: Bank account sample query
         query: classpath:playground/bank_account.graphql
         variables: classpath:playground/bank_account_variables.json
-      # settings:
-      # request.credentials: omit
-    # disable in prod
-    # enabled: true
+  annotations:
+    base-package: com.example.springbootgraphql
+  schema-strategy: annotations
+
+  # enabled: true
+
 voyager:
   enabled: true
+
+logging:
+  pattern:
+    console: -%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %clr(%X{correlation_id}){red} %m%n%wEx
