@@ -1,3 +1,5 @@
+directive @connection(for: String) on FIELD_DEFINITION
+
 # All available queries on this GraphQL server
 type Query {
     # Returns a BankAccount linked to a BankAccount id
