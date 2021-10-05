@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,11 +18,14 @@ import org.springframework.stereotype.Component;
  * query coming in and add any custom piece of code at various times
  *
  * @see graphql.execution.instrumentation.Instrumentation Instrumentation
+ * @see org.springframework.boot.logging.logback default.xml, console-appender
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RequestLoggingInstrumentation extends SimpleInstrumentation {
+
+  public static String CORRELATION_ID = "correlation_id";
   private final Clock clock;
 
   /**
@@ -40,27 +44,46 @@ public class RequestLoggingInstrumentation extends SimpleInstrumentation {
     var start = Instant.now(clock);
 
     /**
-     * 2: Get the unique {@code id} that will be or was used to execute this operation via an {@link
-     * graphql.ExecutionInput ExecutionInput}
+     * 2a: Get the unique {@code id} that will be or was used to execute this operation via an
+     * {@link graphql.ExecutionInput ExecutionInput}
+     *
+     * <p>Removed as we are adding it to every log var executionId =
+     * parameters.getExecutionInput().getExecutionId();
      */
-    var executionId = parameters.getExecutionInput().getExecutionId();
+
+    /**
+     * 2b: Initialize the first key-value pair by adding {@code executionId} into the {@link MDC}
+     * map, which belongs to the `logger`, which is tied to the `neo Thread`
+     *
+     * <p>We take the executionId of the graphqlQuery because in this instance, we are the `edge
+     * service`, if we can think of a vertical line on this editor, when they call us, our service
+     * attaches the node head, we propagate down the line through external services and until this
+     * line meets us again at the very edge, where we clear the MDC.
+     *
+     * <p>Thus we are using the executionID because it is assigned from the graphql server.
+     * Otherwise you can take it from the request header!
+     *
+     *
+     */
+    MDC.put(CORRELATION_ID, parameters.getExecutionInput().getExecutionId().toString());
 
     /** 3: Log the full query */
-    log.info(
-        "{}: query: {} with variables: {}",
-        executionId,
-        parameters.getQuery(),
-        parameters.getVariables());
+    log.info("Query: {} with variables: {}", parameters.getQuery(), parameters.getVariables());
 
     return SimpleInstrumentationContext.whenCompleted(
         (executionResult, throwable) -> {
           var duration = Duration.between(start, Instant.now(clock));
           if (throwable == null) {
-
-            log.info("{}: completed successfully in: {}", executionId, duration);
+            log.info("Completed successfully in: {}", duration);
           } else {
-            log.warn("{}: failed in {}", executionId, duration, throwable);
+            log.warn("Failed in {}", duration, throwable);
           }
+          /**
+           * If we have async resolvers, this callback can occur in the thread-pool and not the NIO
+           * thread. In that case, the `LoggingListener` will be used as a fallback to clear the NIO
+           * thread.
+           */
+          MDC.clear();
         });
   }
 }
