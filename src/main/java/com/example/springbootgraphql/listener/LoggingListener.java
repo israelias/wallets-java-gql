@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
  * If you want to listen to that (pre/post resolver methods etc) you should use the Instrumentation
  * provided by GraphQL Java.
  *
- * <p>This listener is shared among threads, which is why we don't save any state in the listener object.
- * Here a new callback is returned per method invocation. If we want to save some state on the thread,
- * we would implement the use of ThreadLocal
+ * <p>This listener is shared among threads, which is why we don't save any state in the listener
+ * object. Here a new callback is returned per method invocation. If we want to save some state on
+ * the thread, we would implement the use of ThreadLocal
  */
 @Slf4j
 @Component
@@ -40,7 +40,7 @@ public class LoggingListener implements GraphQLServletListener {
   public RequestCallback onRequest(HttpServletRequest request, HttpServletResponse response) {
 
     var startTime = Instant.now(clock);
-    log.info("Received GraphQL request.");
+    // log.info("Received GraphQL request.");
 
     return new RequestCallback() {
       @Override
@@ -59,8 +59,9 @@ public class LoggingListener implements GraphQLServletListener {
       @Override
       public void onFinally(HttpServletRequest request, HttpServletResponse response) {
         // RequestCallback.super.onFinally(request, response);
-        log.info(
-            "Completed Request. Time Taken: {}", Duration.between(startTime, Instant.now(clock)));
+        //        log.info(
+        //            "Completed Request. Time Taken: {}", Duration.between(startTime,
+        // Instant.now(clock)));
       }
     };
   }
