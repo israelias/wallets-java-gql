@@ -2,12 +2,14 @@ package com.example.springbootgraphql.resolver.bank;
 
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
+import com.example.springbootgraphql.util.CorrelationIdPropagationExecutor;
 import graphql.GraphQLException;
 import graphql.execution.DataFetcherResult;
 import graphql.kickstart.execution.error.GenericGraphQLError;
 import graphql.kickstart.tools.GraphQLResolver;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +42,9 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    * @see java.util.concurrent.Executors
    * @see Runtime
    */
-  private final ExecutorService executorService =
-      Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  private final Executor executorService =
+      CorrelationIdPropagationExecutor.wrap(
+          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 
   /**
    * client
@@ -62,7 +65,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    */
   public CompletableFuture<Client> client(BankAccount bankAccount) {
     // log.info("Stop me debugging");
-
+    // TODO client should be a separate service to hook into to retrieve clients with different info
     return CompletableFuture.supplyAsync(
         () -> {
           log.info("Requesting client data for bank account id {}", bankAccount.getId());
