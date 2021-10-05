@@ -1,6 +1,7 @@
 package com.example.springbootgraphql.context.dataloader;
 
 import com.example.springbootgraphql.service.BalanceService;
+import com.example.springbootgraphql.util.CorrelationIdPropagationExecutor;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
@@ -21,7 +22,8 @@ public class DataLoaderRegistryFactory {
   private final BalanceService balanceService;
   public static final String BALANCE_DATA_LOADER = "BALANCE_DATA_LOADER";
   private static final Executor balanceThreadPool =
-      Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+      CorrelationIdPropagationExecutor.wrap(
+          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
 
   public DataLoaderRegistry create(String userId) {
     var registry = new DataLoaderRegistry();
