@@ -7,6 +7,10 @@ query GET_BANK_ACCOUNT($id: ID) {
             firstName
             lastName
         }
+        assets {
+            id
+        }
+        balance
     }
 }
 
