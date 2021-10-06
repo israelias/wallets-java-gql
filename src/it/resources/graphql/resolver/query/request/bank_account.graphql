@@ -2,6 +2,8 @@ query GET_BANK_ACCOUNT {
     bankAccount(id: "ae63e39b-f31d-4ef9-8b6d-5a4fe7b7c777") {
         id
         currency
+        createdOn
+        createdAt
         client {
             firstName
             lastName

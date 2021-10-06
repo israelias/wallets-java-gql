@@ -3,6 +3,8 @@
     "bankAccount": {
       "id": "ae63e39b-f31d-4ef9-8b6d-5a4fe7b7c777",
       "currency": "PHP",
+      "createdOn": "2021-10-06",
+      "createdAt": "2021-10-06T00:00:00Z",
       "client": {
         "firstName": "Elias",
         "lastName": "Wrubel"
