@@ -1,0 +1,9 @@
+type BankAccountConnection {
+    edges: [BankAccountEdge]
+    pageInfo: PageInfo
+}
+
+type BankAccountEdge {
+    cursor: String
+    node: BankAccount
+}
