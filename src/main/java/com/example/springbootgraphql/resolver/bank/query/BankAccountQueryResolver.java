@@ -1,6 +1,6 @@
 package com.example.springbootgraphql.resolver.bank.query;
 
-import com.example.springbootgraphql.BankAccountRepository;
+import com.example.springbootgraphql.repository.BankAccountRepository;
 import com.example.springbootgraphql.connection.CursorUtil;
 import com.example.springbootgraphql.context.CustomGraphQLContext;
 import com.example.springbootgraphql.domain.bank.BankAccount;
