@@ -10,10 +10,10 @@
     <version>2.5.5</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-
   <groupId>org.example</groupId>
   <artifactId>springboot-graphql</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+
   <name>SpringBoot GraphQL</name>
   <description>Graphql with Java SpringBoot Example</description>
 
@@ -24,37 +24,77 @@
     <!-- 16.0.0 not on central -->
     <graphql.extended.scalars.version>15.0.0</graphql.extended.scalars.version>
     <graphql.extended.validation.version>16.0.0</graphql.extended.validation.version>
+    <!-- For graphql-java-tools -->
+    <!--    <kotlin.version>1.5.0</kotlin.version>-->
+
+    <!-- For web3j -->
+    <!--    <web3j.version>4.8.7</web3j.version>-->
+
+    <!-- Node/Yarn -->
+    <!--    <sb-gql-src-dir>src/main/token</sb-gql-src-dir>-->
+    <!--    <node.version>v16.4.2</node.version>-->
+    <!--    <yarn.version>v1.22.10</yarn.version>-->
+    <!--    <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>-->
   </properties>
 
   <dependencies>
+    <!--Node -->
+    <!--    <dependency>-->
+    <!--      <groupId>com.github.eirslett</groupId>-->
+    <!--      <artifactId>frontend-maven-plugin</artifactId>-->
+    <!--      <version>${frontend-maven-plugin.version}</version>-->
+    <!--    </dependency>-->
 
+    <!-- web3j -->
+    <!--    <dependency>-->
+    <!--      <groupId>org.web3j</groupId>-->
+    <!--      <artifactId>web3j-maven-plugin</artifactId>-->
+    <!--      <version>{web3j.version}</version>-->
+    <!--      <type>maven-plugin</type>-->
+    <!--    </dependency>-->
 
+    <!-- GraphQL Java Annotations -->
+    <!--    <dependency>-->
+    <!--      <groupId>io.github.graphql-java</groupId>-->
+    <!--      <artifactId>graphql-java-annotations</artifactId>-->
+    <!--      <version>9.1</version>-->
+    <!--    </dependency>-->
+
+    <!-- GraphQL Java Tools for SDL directives -->
+    <!--    <dependency>-->
+    <!--      <groupId>com.graphql-java-kickstart</groupId>-->
+    <!--      <artifactId>graphql-java-tools</artifactId>-->
+    <!--      <version>${graphql.version}</version>-->
+    <!--    </dependency>-->
+
+    <!-- Spring Boot Starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
 
+    <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
-
+    <!-- Spring Boot Starter Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
 
-
+    <!-- GraphQL Spring Boot Starter -->
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>graphql-spring-boot-starter</artifactId>
       <version>${graphql.version}</version>
     </dependency>
 
-
+    <!-- GraphQL Java Extended Scalars -->
     <dependency>
       <groupId>com.graphql-java</groupId>
       <artifactId>graphql-java-extended-scalars</artifactId>
@@ -66,15 +106,20 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- Hibernate Validator -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
     </dependency>
-    <!--		<dependency>-->
-    <!--			<groupId>org.springframework.boot</groupId>-->
-    <!--			<artifactId>spring-boot-starter-security</artifactId>-->
-    <!--		</dependency>-->
 
+    <!-- Spring Security -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- GraphQL Java Extended Validation -->
     <dependency>
       <groupId>com.graphql-java</groupId>
       <artifactId>graphql-java-extended-validation</artifactId>
@@ -87,6 +132,7 @@
       </exclusions>
     </dependency>
 
+    <!-- GraphQL Playground Spring Boot Starter -->
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>playground-spring-boot-starter</artifactId>
@@ -95,6 +141,7 @@
 
     </dependency>
 
+    <!-- GraphQL Voyager Spring Boot Starter -->
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>voyager-spring-boot-starter</artifactId>
@@ -102,11 +149,21 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- AutoConfigs? Spring Boot Starter -->
+    <!--    <dependency>-->
+    <!--      <groupId>com.graphql-java-kickstart</groupId>-->
+    <!--      <artifactId>graphql-spring-boot-autoconfigure</artifactId>-->
+    <!--      <version>${graphql.version}</version>-->
+    <!--      <scope>runtime</scope>-->
+    <!--    </dependency>-->
+
+    <!-- Reactor Core -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
     </dependency>
 
+    <!-- GraphQL Spring Boot Starter Test -->
     <dependency>
       <groupId>com.graphql-java-kickstart</groupId>
       <artifactId>graphql-spring-boot-starter-test</artifactId>
@@ -114,25 +171,28 @@
       <scope>test</scope>
     </dependency>
 
-
+    <!-- JUnit Jupiter API (test) -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
 
+    <!-- JUnit Jupiter Params (test) -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
 
+    <!-- JUnit Jupiter Engine (test) -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
 
+    <!-- AssertJ Core (test) -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -142,17 +202,106 @@
 
   <build>
     <plugins>
+      <!-- Node Build -->
+      <!--      <plugin>-->
+      <!--        <groupId>com.github.eirslett</groupId>-->
+      <!--        <artifactId>frontend-maven-plugin</artifactId>-->
+      <!--        <version>${frontend-maven-plugin.version}</version>-->
+      <!--        <configuration>-->
+      <!--                    <nodeVersion>${node.version}</nodeVersion>-->
+      <!--                    <yarnVersion>${yarn.version}</yarnVersion>-->
+      <!--                    <workingDirectory>${sb-gql-src-dir}</workingDirectory>-->
+      <!--          <installDirectory>${project.build.directory}</installDirectory>-->
+      <!--        </configuration>-->
+      <!--        <executions>-->
+      <!--          <execution>-->
+      <!--            <id>install-and-npm</id>-->
+      <!--            <goals>-->
+      <!--              <goal>install-node-and-yarn</goal>-->
+      <!--            </goals>-->
+      <!--            <configuration>-->
+      <!--              <nodeVersion>${node.version}</nodeVersion>-->
+      <!--              <yarnVersion>${yarn.version}</yarnVersion>-->
+      <!--              <workingDirectory>${sb-gql-src-dir}</workingDirectory>-->
+      <!--            </configuration>-->
+      <!--          </execution>-->
+      <!--          <execution>-->
+      <!--            <id>yarn-install</id>-->
+      <!--            <goals>-->
+      <!--              <goal>yarn</goal>-->
+      <!--            </goals>-->
+      <!--            <configuration>-->
+      <!--              <arguments>install</arguments>-->
+      <!--            </configuration>-->
+      <!--          </execution>-->
+      <!--          <execution>-->
+      <!--            <id>build-frontend</id>-->
+      <!--            <goals>-->
+      <!--              <goal>yarn</goal>-->
+      <!--            </goals>-->
+      <!--            <phase>prepare-package</phase>-->
+      <!--            <configuration>-->
+      <!--              <arguments>build</arguments>-->
+      <!--            </configuration>-->
+      <!--          </execution>-->
+      <!--        </executions>-->
+      <!--      </plugin>-->
+      <!-- /Node -->
+
+
+      <!-- web3j -->
+      <!--      <plugin>-->
+      <!-- The plugin will read the contracts at the path in “src/main/resources/contracts” and generate the sources.
+      In order to run the plugin -->
+      <!--        <groupId>org.web3j</groupId>-->
+      <!--        <artifactId>web3j-maven-plugin</artifactId>-->
+      <!--        <version>{web3j.version}</version>-->
+      <!--        <configuration>-->
+      <!--          <packageName>org.sgitario.lottery.blockchain.model</packageName>-->
+      <!--          <nativeJavaType>true</nativeJavaType>-->
+      <!--          <outputFormat>java,bin,abi</outputFormat>-->
+      <!--          <soliditySourceFiles>-->
+      <!--            <directory>src/main/resources/contracts</directory>-->
+      <!--            <includes>-->
+      <!--              <include>*.sol</include>-->
+      <!--            </includes>-->
+      <!--          </soliditySourceFiles>-->
+      <!--          <outputDirectory>-->
+      <!--            <java>src/main/java</java>-->
+      <!--            <bin>src/main/resources/bin/generated</bin>-->
+      <!--            <abi>src/main/resources/abi/generated</abi>-->
+      <!--          </outputDirectory>-->
+      <!--        </configuration>-->
+      <!--      </plugin>-->
       <!--Resources-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
+            <!--            <id>position-spring-boot-build</id>-->
             <phase>generate-sources</phase>
             <goals>
               <goal>resources</goal>
             </goals>
           </execution>
+          <!-- Node -->
+          <!--          <execution>-->
+          <!--            <id>position-node-build</id>-->
+          <!--            <goals>-->
+          <!--              <goal>copy-resources</goal>-->
+          <!--            </goals>-->
+          <!--            <phase>prepare-package</phase>-->
+          <!--            <configuration>-->
+          <!--              <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>-->
+          <!--              <resources>-->
+          <!--                <resource>-->
+          <!--                  <directory>${sb-gql-src-dir}/build</directory>-->
+          <!--                  <filtering>false</filtering>-->
+          <!--                </resource>-->
+          <!--              </resources>-->
+          <!--            </configuration>-->
+          <!--          </execution>-->
         </executions>
       </plugin>
       <!--Compiler-->
