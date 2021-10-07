@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class BankAccountResolver implements GraphQLResolver<BankAccount> {
    * @return dataLoader#load() Function that loads the bankAccount id to the dataLoader {@code
    *     bankAccount.getID()}
    */
+  @PreAuthorize("hasAuthority('get:bank_account_balance')")
   public CompletableFuture<BigDecimal> balance(
       BankAccount bankAccount, DataFetchingEnvironment environment) {
 
