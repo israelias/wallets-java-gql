@@ -29,7 +29,7 @@ public class BankAccountResolver implements GraphQLResolver<BankAccount> {
     log.info("Getting balance for {}", bankAccount.getId());
 
     DataLoader<UUID, BigDecimal> dataLoader =
-        environment.getDataLoader((DataLoaderRegistryFactory.BALANCE_DATA_LOADER));
-    return dataLoader.load(bankAccount.getId());
+        environment.getDataLoader(DataLoaderRegistryFactory.BALANCE_DATA_LOADER);
+    return dataLoader.load(bankAccount.getId(), bankAccount);
   }
 }

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 /**
@@ -54,6 +55,7 @@ public class LoggingListener implements GraphQLServletListener {
           HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
         // no-op
         // RequestCallback.super.onError(request, response, throwable);
+        log.error("Caught exception in listener.", throwable);
       }
 
       @Override
@@ -62,6 +64,11 @@ public class LoggingListener implements GraphQLServletListener {
         //        log.info(
         //            "Completed Request. Time Taken: {}", Duration.between(startTime,
         // Instant.now(clock)));
+        /**
+         * This callback will be called post graphql lifecycle.
+         * If we are multi-threading we can clear the original NIO thread MDC variables here.
+         */
+        MDC.clear();
       }
     };
   }
