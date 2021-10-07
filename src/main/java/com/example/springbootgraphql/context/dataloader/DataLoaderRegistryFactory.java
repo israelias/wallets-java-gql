@@ -36,28 +36,19 @@ public class DataLoaderRegistryFactory {
   }
 
   /**
+   * Now maps <k, context> pare for balance service. previously returned for a Set Now allows us to
+   * add logic to the mapped data in balance service.
+   *
    * @param userId
    * @return DataLoader that collections a set of {@code bankAccountIds} and provides the set into
    *     the {@code getBalanceFor()} service, which executes a batch request.
    */
-  //  private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
-  //
-  //    return DataLoader.newMappedDataLoader(
-  //        (Set<UUID> bankAccountIds, BatchLoaderEnvironment environment) ->
-  //            CompletableFuture.supplyAsync(
-  //                () -> balanceService.getBalanceFor(bankAccountIds, userId), balanceThreadPool),
-  //        DataLoaderOptions.newOptions()
-  //            .setBatchLoaderContextProvider(() -> "This is the context From Data Loader"));
-  //  }
-
   private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
 
     return DataLoader.newMappedDataLoader(
         (Set<UUID> bankAccountIds, BatchLoaderEnvironment environment) ->
             CompletableFuture.supplyAsync(
                 () -> balanceService.getBalanceFor((Map) environment.getKeyContexts(), userId),
-                balanceThreadPool),
-        DataLoaderOptions.newOptions()
-            .setBatchLoaderContextProvider(() -> "This is the context from Data Loader"));
+                balanceThreadPool));
   }
 }
