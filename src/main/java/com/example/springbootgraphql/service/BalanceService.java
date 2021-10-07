@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 public class BalanceService {
 
   public Map<UUID, BigDecimal> getBalanceFor(Map<UUID, BankAccount> bankAccountIds, String userId) {
-
+    // logs map of id to entire bankaccount object associated with that id
+    log.info("Requesting bank accounts: {} for user ID: {}", bankAccountIds, userId);
+    // original set of ids
     var ids = bankAccountIds.keySet();
     log.info("Requesting bank account ids: {} for user ID: {}", ids, userId);
 

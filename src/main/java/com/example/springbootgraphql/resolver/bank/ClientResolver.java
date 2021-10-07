@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +45,8 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    */
   private final Executor executorService =
       CorrelationIdPropagationExecutor.wrap(
-          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+          new DelegatingSecurityContextExecutorService(
+              Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())));
 
   /**
    * client
@@ -64,7 +66,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    *     CompletableFuture}.
    */
   public CompletableFuture<Client> client(BankAccount bankAccount) {
-    // log.info("Stop me debugging");
+    log.info("Stop me debugging");
     // TODO client should be a separate service to hook into to retrieve clients with different info
     return CompletableFuture.supplyAsync(
         () -> {

@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,7 +42,8 @@ public class AssetResolver implements GraphQLResolver<BankAccount> {
    */
   private static final Executor executorService =
       CorrelationIdPropagationExecutor.wrap(
-          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+          new DelegatingSecurityContextExecutorService(
+              Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())));
 
   /**
    * assets

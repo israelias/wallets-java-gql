@@ -15,6 +15,7 @@ import org.dataloader.BatchLoaderEnvironment;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderOptions;
 import org.dataloader.DataLoaderRegistry;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,7 +26,8 @@ public class DataLoaderRegistryFactory {
   public static final String BALANCE_DATA_LOADER = "BALANCE_DATA_LOADER";
   private static final Executor balanceThreadPool =
       CorrelationIdPropagationExecutor.wrap(
-          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+          new DelegatingSecurityContextExecutorService(
+              Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())));
 
   public DataLoaderRegistry create(String userId) {
     var registry = new DataLoaderRegistry();
