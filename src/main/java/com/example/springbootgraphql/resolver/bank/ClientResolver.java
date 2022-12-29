@@ -3,6 +3,7 @@ package com.example.springbootgraphql.resolver.bank;
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
 import com.example.springbootgraphql.util.CorrelationIdPropagationExecutor;
+import com.example.springbootgraphql.util.ExecutorFactory;
 import graphql.GraphQLException;
 import graphql.execution.DataFetcherResult;
 import graphql.kickstart.execution.error.GenericGraphQLError;
@@ -43,10 +44,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    * @see java.util.concurrent.Executors
    * @see Runtime
    */
-  private final Executor executorService =
-      CorrelationIdPropagationExecutor.wrap(
-          new DelegatingSecurityContextExecutorService(
-              Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())));
+  private final Executor executor = ExecutorFactory.newExecutor();
 
   /**
    * client
@@ -77,6 +75,6 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
               .lastName("Wrubel")
               .build();
         },
-        executorService);
+        executor);
   }
 }
