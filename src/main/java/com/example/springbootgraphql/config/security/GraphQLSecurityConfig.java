@@ -89,7 +89,6 @@ public class GraphQLSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/playground", "/vendor/playground/**")
         // Subscription are secured via AuthenticationConnectionListener
         .antMatchers("/subscriptions");
-    ;
   }
 
   /**
