@@ -63,3 +63,7 @@ build/
 .profile
 .bash_rc
 .env
+
+# Graph
+/node_modules/
+src/main/token/node_modules
