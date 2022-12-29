@@ -2,10 +2,15 @@ scalar NonNegativeInt
 scalar DateTime
 scalar Date
 
+directive @NotBlank(message: String) on ARGUMENT_DEFINITION
+directive @Expression(value: String, message: String) on ARGUMENT_DEFINITION
+
 # All mutations available in GraphQL
 type Mutation {
     # Create a bank account
     createBankAccount(input: CreateBankAccountInput!): BankAccount!
+    # Update a bank account
+    updateBankAccount(id: ID, name: String! @NotBlank(message: "updateBankAccount.name"), age: Int @Expression(value: "${validatedValue < 500}" message: "updateBankAccount.age")): BankAccount!
 
     # Upload a file
     uploadFile: ID!
