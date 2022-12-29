@@ -205,8 +205,39 @@ taking 11 seconds to complete).
 
 Note: The resolutions are typically resolved entirely out of sequence thanks to the [Async Resolvers](#async-resolvers)
 
+### DataLoader Key Context
+
+By default in GraphQL, a query resolver will resolve a field's nodes sequentially. When you have a list (
+see [Connection cursor](#hashed-cursor-based-pagination)) of nodes, It will resolve each node's fields sequentially. For
+example if you have 2 nodes with field X in the selection set. It will execute the query resolver first, then resolver
+for Node1 Field X followed by Node2 Field X. This is the N+1 problem.
+
+We figured out how to solve the above dataloader n+1 problem in [DataLoader N+1 Problem](#dataloader-n1-problem)
+
+BUT Now we have another problem!
+
+What happens if we require some additional fields from the `BankAccount` (Context) inside the dataloader function? How
+do we pass them into the dataloader?
+
+We enrich the `Balance` response with another field contained the BankAccount. This final value would then be set into
+the `dataloader`'s return `Map`.
+
+To solve this problem, we can load the `ID` with a context into the dataloader. In this example, the context is
+`BankAccount`. The `IDs` mapped to `Contexts` are accessible inside the dataloader function via the
+`BatchLoaderEnvironment#getKeyContexts`. Unfortunately this returns a `Map(Object, Object)` instead of the preferred
+generic types, so we lose type safety. To get around this, we _cast_ this to `Map`, then we pass the `Map` into our
+function with
+`Map(UUID, BankAccount)` defined as the method parameters.
+
+But, why don't we just load the BankAccount into the dataloader? This sounds good and easy - BUT If you do that, then we
+no-longer get the speed from the UUID hashmap lookups. So we always use the most efficient key possible.
+
+- [Mapped Batched DataLoader](https://github.com/graphql-java/java-dataloader#returning-a-map-of-results-from-your-batch-loader)
+- [GraphQL DataLoader from Facebook](https://github.com/graphql/dataloader)
+
 ### Optimization
 
+- [GraphQL Java DataLoader](https://github.com/graphql-java/java-dataloader)
 - [SelectionSet](https://www.graphql-java.com/documentation/v11/data-fetching/)
 - [Field selection](https://www.graphql-java.com/documentation/v12/fieldselection/)
 - [DataFetchingFieldSelectionSet](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/DataFetchingFieldSelectionSet.java)
@@ -239,6 +270,249 @@ The selection set `DataFetchingFieldSelectionSet` contains many useful utility m
 `contains`, `containsAnyOf`, `containsAnyOf`. These can be used as the predicate to make your API call selection.
 
 To get the requested field names you can stream the fields, filter and collect into a set.
+
+### Instrumentation
+
+GraphQL Instrumentation allows us to inject code that can observe the execution of a query and also change the runtime
+behaviour. `RequestLogginInstrumentation` takes advantage of this to log the graphql request's query, variables, any
+exceptions thrown and execution time.
+
+To do this we create a `spring bean` of type `graphql.execution.instrumentation.Instrumentation`. To remove boilerplate
+no-op code, we override no-op `SimpleInstrumentation` implementation and just override the `beginExecution` method.
+
+We then return a `SimpleInstrumentationContext` with a `whenCompleted` callable containing our duration logic and log
+message.
+
+It is possible that multiple Instrumentation objects are in one graphql server.
+
+In the next video, I demo the TracingInstrumentation that will capture the execution time of the fields and place the
+results into the graphql response.
+
+### Tracing Instrumentation (Request Tracing)
+
+In a traditional REST API, it is common to add percentile response time monitoring on the URL level. In graphql, things
+are slightly different. All requests go via one endpoint, `/graphql`. Placing a percentile on the HTTP URL would not
+give us any useful information. So how do we identify slow resolvers and bottlenecks?
+
+One method is to add request tracing to your `resolvers/datafetchers`, `dataloaders` and `fields`. This tracing will
+record important information such as the execution time. This data can then be used to identify slow revolvers that need
+tuned.
+
+Although, beware If a resolver throws an exception, its child resolvers will not execute - therefore you may have
+slightly misleading metrics / missing data for that period of time (until parent resolver is not throwing exceptions).
+
+We can enable the `TracingInstrumentation` bean by setting the `graphql.servlet.tracingEnabled: true`. This will record
+the execution time of our `resolvers/field` methods. This data will be placed into the graphql response object and
+visible via graphql playground.
+
+Beware in production, this can add considerable latency to response times in high-throughput APIs. we might want to have
+a play about first... or do some sampling.
+
+### Correlation ID (Thread Propagation)
+
+In a multi-threaded graphql server it is imperative to propagate a `request correlation id` to all threads invoked. This
+will ensure all threads can log the correlation id which will then provide insight into the code flow and ultimately
+which request triggered that section of code. If we log the original graphql query and variables with the correlation
+ID, we can now link any log to the original graphql request. Very useful for debugging then exceptions.
+
+We first create an `Instrumentation` class and override the `beginExecution` method. Inside this method we assign a
+unique correlation id to the loggers `mapped diagnostic context` (MDC). As our graphql service is an edge node, no
+upstream service will provide a correlation id to graphql. We therefore can use the graphql `Execution ID`. This a UUID
+generated by the graphql framework for each request. We then return a `whenCompleted` callback to clear the `MDC`. It’s
+important to do this as we want to ensure the `MDC` does not contain any values from the previous request. We can set an
+additional
+`MDC.clear` on a listener’s `onComplete()` method to ensure the original `NIO thread` has been cleared. As an
+alternative, the listener `onRequest()` method can also be used to set the original `MDC` on the `tomcat NIO` thread.
+
+We then customize the logback console appender to print the `%X{correlation_id}` with every log line.
+
+This will allow us to paste a `correlation id` into our log viewer tool and get every log line.
+E.g. `Splunk, Sumo-logic & Logentries.`
+
+But wait! At this stage, the `MDC` is only tied to the` NIO tomcat thread`. How do we propagate it to all threads such
+as
+`dataloaders` and `async completable futures`?
+
+To solve this, we create a `Correlation ID propagation executor service`. This class will get the `MDC` correlation ID
+from the current thread and _set it into the `MDC` map_ in the new executing thread in the target thread pool. Right
+before the thread is ready to accept another unit of work, we _clear_ the `MDC` map. This can then be chained throughout
+all threads and will propagate and clear the MDC as required.
+
+Now we will have a consistent `correlation_id` printed in all our application logs. For good monitoring and debugging.
+
+Steps:
+
+- Add `correlation_id` to `MDC`
+- Print the `correlation_id` in the logs
+- Pass the `correlation_id` to async `CompletableFutures` resolver threads
+- pass the `correlation_id` to batched `dataLoader` threads
+- Ensure `correlation_id` is cleared
+
+- Previous
+
+```xml
+${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}
+```
+
+- New
+
+```yaml
+-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %clr(%X{correlation_id}){red} %m%n%wEx
+```
+
+- [Mapped Diagnostic Context: Uniquely stamping each request](http://logback.qos.ch/manual/mdc.html)
+
+### Integration Testing (GraphQLTestTemplate)
+
+While developing a graphql server it is equally important to develop our integration tests. This can be achieved in java
+spring boot with the class `GraphQLTestTemplate` and the `graphql-spring-boot-starter-test` dependency.
+
+But first, why do we need integration tests? Having a set of integration tests for our graphql server will allow us to
+make changes with confidence. These help ensure that we didn't introduce any bugs or regressions. We can be more
+comfortable when performing upgrades in dependencies, especially major bumps. Ensure that we didn't change the graphql
+serialized json as this could easily break clients. Ensure our business functionality actually works as expected. Ensure
+downstream services are called (`wiremock`, `grpcmock`). New developer teammates can join the product and see sample
+requests and responses. They can be more comfortable making changes at an early stage. Overall, development will go
+faster.
+
+Approach:
+
+We first create a `src/it/java` and `src/it/resources` packages and update our maven build to include those tests. Here
+we include the following plugins to our POM: `maven-resources-plugin`, `build-helper-maven-plugin`
+, `maven-failsafe-plugin` and
+`testResources`.
+
+We then create a `IT test class` per resolver. This test will start an `in-memory` graphql spring boot server. We then
+create graphql queries together with the expected responses and copy/paste them into files in the resources package. We
+then use `junit5` to create unit tests that will each load a graphql query, submit it to the server using
+`GraphQLTestTemplat`e. We then can load the matching expected graphql response file from the `classpath` and `assert` it
+equals the response. This can be achieved with library `skyscreamer` json `assertEquals`.
+
+For dynamic elements such as a clock (`LocalDateTime`, `Localdate` etc.), we create the `ApplicationContext` with
+a `FixedClock`. This better than mocking the clock as having the `fixedclock` as `@bean` will keep our spring
+application context clean, thus avoid having to restart between tests.
+
+It is extremely important that we do not have any mocks or spy beans in the integration tests. As they will cause the
+context to dirty, therefore requiring a restart of the server between junit tests and slowing down the build
+considerably.
+
+Warning: `tracing` should be `false` when testing.
+
+- [GraphQLTestTemplate](https://github.com/graphql-java-kickstart/graphql-spring-boot/blob/master/graphql-spring-boot-test/src/main/java/com/graphql/spring/boot/test/GraphQLTestTemplate.java)
+- [grpc mock](https://github.com/Fadelis/grpcmock)
+
+Potential Mock implementation
+
+```kotlin
+
+import com.example.springbootgraphql.Application;
+import com.graphql.spring.boot.test.GraphQLTestTemplate;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [Application::class])
+class DatabaseStatusIntegrationTest @Autowired constructor(
+        val testTemplate: GraphQLTestTemplate,
+        val versionRepository: VersionRepository
+) {
+    @Test
+    @WithMockUser(username = "cwicks", authorities = ["admin"])
+    fun `Test databaseStatus expect ok`() {
+        val result = testTemplate.postForResource("graphql/test-dbstatus.graphql")
+
+        assertThat(result.isOk, equalTo(true))
+    }
+}
+
+```
+
+Fixing the autowire issue
+
+```java
+@Autowired
+private GraphQLTestTemplate graphQLTestTemplate;
+
+@MockBean
+private ResourceService resourceServiceMock;
+
+@Test
+public void getResourceById()throws IOException{
+    Resource resource=new Resource(1L,"Facebook","facebook.com");
+    when(resourceServiceMock.getResource(any())).thenReturn(resource);
+    GraphQLResponse response=graphQLTestTemplate.postForResource("graphql/get-resource-by-id.graphql");
+    assertTrue(response.isOk());
+
+    assertEquals("1",response.get("$.data.resource.id"));
+    assertEquals("Facebook",response.get("$.data.resource.title"));
+    assertEquals("facebook.com",response.get("$.data.resource.url"));
+    }
+```
+
+### JVM Profiling
+
+Now that we have a functional GraphQL Java server running with some business logic, it's time to profile the JVM!!
+
+Profiling our java application has massive benefits, such as increasing the chance of finding redundant memory
+allocation and memory leaks. The first being critical for low latent and highly concurrent APIs.
+
+In this section we plant a memory allocation bug and identify it with `VisualVM`.
+
+The first thing we do is set up a small `Apache JMeter` load testing script for our GraphQL requests. We configure this
+to send 3 concurrent batches of 1000 requests.
+
+We then start our spring boot graphql server with the `VisualVM IntelliJ` launcher. Navigate to your application and
+select the profile tab. Open settings and add an asterisk symbol to record all classes/methods. Click start profiling.
+
+Execute the Jmeter script. Navigate back to VisualVM and stop the profiler.
+
+You should now have insight into hot stack traces, heavy method calls and heap memory allocation. If you see "Unknown",
+restart VisualVM... sometimes it has this bug.
+
+`VisualVM` identified the memory allocation bug and told us the exact class and method. Thanks!!!
+
+You can also try the sampling tab for memory allocation and CPU profiling.
+
+Other than the above, there are many kinds of application metrics you should consider such as
+
+- Service percentiles
+- Service availability / uptime
+- Internal http/grpc client percentiles
+- Executor metrics (queue depth etc)
+- GC execution Kubernetes memory requests
+- JVM memory
+- Method counts
+- Exception counts / classes
+- GraphQL queries / execution time
+- GraphQL resolver execution time / counts
+- Kubernetes CPU requests
+- Database connection pools
+- etc etc etc!
+
+Other tools I like are, `micrometer`, `stackdriver`, `java mission control` and `gatling load testing`.
+
+Summary:
+
+- Why?: Memory leak, heavy memory allocation by over allocating objects.
+- Focus: Method calls, Memory usage
+- Solution:
+    - Load testing: Apache JMeter
+    - JVM Profiling: VisualVM (with IntelliJ plugin)
+- Plant the bug:
+
+```java
+    private final Set<BigDecimal> bigCrazy=new HashSet<>();
+    var size=ThreadLocalRandom.current().nextInt(250,500);
+    var littleCrazy=new LinkedHashSet<BigDecimal>(size);
+
+    IntStream.range(0,size).forEach(nextInt->littleCrazy.add(BigDecimal.valueOf(nextInt)));
+    bigCrazy.addAll(littleCrazy);
+
+```
+
+[VisualVM for graphql jvm profiling](https://visualvm.github.io/)
+[Apache Jmeter for load and performance testing](https://jmeter.apache.org/)
+[Gatling load testing](https://gatling.io/)
 
 ### Scalars
 
@@ -309,6 +583,114 @@ as user id, permissions and roles. This data can then be used to perform authori
 alternative to this is `spring security` and pass the` security context` to other threads via
 `DelegatingSecurityContextExecutorService`. But the context file can contain anything we wish.
 
+### Spring Security Pre-Authorization
+
+First Read [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture).
+> > Delegate the security to the Service class that holds/pools the data/has access to it. Recommended to have policies at the actual ldata level, where the data lives, not the actual server.
+
+running `SecurityContextHolder.getContext()` will expose the permissions that query is validated against (it's in the
+normal tomcat thread). However, if we run this in a child resolver like `balanceService` (which executes in a thread
+pool), we get null on `authentication` context. But we may need the security context in there to perform validation, or
+passage credentials to external services or pass that JWT to external services -- so how do we propagate that into there
+and how do we get that in any async stuff? Wrap the propogationid with a security wrapper.
+
+In order to use `pre-auth`, we must ensure that all graphql requests have been previously authorized by an upstream
+service. For example, All Ingres traffic to this graphql service must bypass an upstream proxy node that will validate
+the request’s `JWT` token. If the `JWT` token is valid, then the proxy will forward the request into this graphql
+server. This code alone provides no authorization and is not production ready alone. Read more about pre-auth patterns
+before using this.
+
+This proxy pattern is getting more common among `kubernetes` / `service-mesh` / `side car` enabled technologies such
+as [istio](https://istio.io/latest/docs/concepts/security/arch-sec.svg). There are many sidecar proxy options such as
+[Kong](https://konghq.com/) or [Envoy](https://www.envoyproxy.io/).
+
+There are many benefits of this pattern, as we can extract boilerplate, hard to maintain, error-prone authorization
+configuration OUT of our application code.
+
+This allows for a clearer separation of concerns. Authorization policies and mutual TLS in one world, and application
+code in another.
+
+For a more old-school spring security approach where the real auth code lives in the application code (with explanation)
+, see my other [spring security REST](https://www.youtube.com/watch?v=rOnoKiH97Nc)
+
+Forwarding additional headers containing the extracted authorization data may allow for a smoother transition to support
+other authentication methods. For example, if we can avoid our app code from decoding `JWT` `base64` or having specific
+auth logic - then we can focus on the _sidecar auth migration_ with minimal application code changes. Just think if we
+have 30+ microservices? An alternative would be to support a shared library and bump the app’s dependencies first.
+
+The spring security context is _thread bound_. Luckily we can propagate the spring security context into our thread
+pools and executors. This will allow us to have _spring security annotations_ and _method level security_ on _
+asynchronous threads_
+/ _execution_. For example `@Async`. We can propagate the security context by wrapping our executor in Spring's
+[DelegatingSecurityContextExecutorService](https://docs.spring.io/spring-security/site/docs/4.2.15.RELEASE/apidocs/org/springframework/security/concurrent/DelegatingSecurityContextExecutorService.html)
+.
+
+Remember to mark the `PreAuthenticatedAuthenticationProvider` as a Spring Bean. Otherwise, you see the default spring
+security fallback user/password on the logs.
+
+Potentially:
+
+- Get an access token with the OAuth API
+- Whitelist an Ethereum address with the Raindrop API
+- Request a challenge with the Raindrop API
+- Execute an authentication transaction via the Server-side Raindrop smart contract
+- Validate the authentication attempt with the Raindrop API
+
+### Schema Directive Validation
+
+This library provides schema validation via a range of directives that follow the `JSR-303 `bean validation
+name/pattern.
+
+In order to activate the directive validation with spring boot graphql, we must first create a `ValidationSchemaWiring`
+bean.
+
+There are a range of annotations we can add to your schema. As of 2020/11/29 they are:
+`@AssertFalse`,` @AssertTrue`, `@DecimalMax`, `@DecimalMin`, `@Digits`, `@Expression`, `@Max`, `@Min`, `@Negative`
+, `@NegativeOrZero`,
+`@NotBlank`, `@NotEmpty`, `@Pattern`, `@Positive`, `@PositiveOrZero`, `@Range` and `@Size`.
+
+To customize the error messages:
+
+- Create a `ValidationMessages.properties` file, add it to the classpath
+- Add `K,V` pairs to `ValidationMessages.properties` in the format:  `key:custom error message`
+- Set the` @Directive(message: “key”) t`
+
+Things To Note about this library
+
+- Dependency 15.0.3/2 is not available on common maven repositories.
+- Schema Validation does not trigger on nested Input Types (deal-breaker for me)
+- All directives are validated. Allowing for a full object validation.
+- Locale support and externalized custom messages
+- Powerful expression language with @Expression
+- Overall good quality of annotations. Practising what they preach.
+- Integates easily with spring boot graphql. But no auto-config based on the dependency.
+
+### Subscription With Reactor
+
+A GraphQL subscription is a long-lasting read operation over the `WebSocket` protocol. Clients connected to a
+subscription will be pushed `0-n` messages from the server. As messages will be pushed directly from the server, clients
+no longer need to poll GraphQL queries checking for updates.
+
+Pushing server events to the graphql subscription subscribers.
+
+We use `project reactor` to create a `pubsub` that will push the mutation events to active subscriptions. When an event
+occurs, the event will be published to the `FluxSink`, the `FluxProcessor` is subscribed to the `FluxSink`.
+
+Each connected graphql subscription will call `.subscribe()` on the returned` Publisher[BankAccount] (FluxProcessor)`.
+This will trigger the flow of data in the whole processor chain. Flux operations can be reused as each operation (method
+call on processor) adds behavior and wraps the previous step’s publisher into a new instance. As there can be multiple
+subscribers reusing parts of the chain, _you should keep operations stateless_. The original published event/message
+will play through each subscriber's full publisher processing chain. See linked project reactor docs for more details,
+section 3.3.3 operators and section 3.3.4 Nothing happens until you subscribe().
+
+Based on the above, we can create two graphql subscriptions:
+
+- One that will receive all (global) events.
+- And another that will only receive events for a particular `Id` (provided by the client).
+
+[Project Reactor Operators](https://projectreactor.io/docs/core/release/reference/#_operators)
+[Project Reactor Subscribe ](https://projectreactor.io/docs/core/release/reference/#reactive.subscribe)
+
 ### Port 8080 is in use
 
 - [Kill 8080](https://stackoverflow.com/questions/40118878/8080-port-already-taken-issue-when-trying-to-redeploy-project-from-spring-tool-s)
@@ -358,3 +740,8 @@ Please refer to Philip's [starter-pack](https://github.com/philip-jvm/learn-spri
 ### Repo Benchmark
 
 - [Philip Starritt Spring Boot GraphQL Tutorial](https://www.youtube.com/c/PhilipStarritt/videos)
+
+### Misc
+
+- [GraphQL Connections](https://www.apollographql.com/blog/graphql/explaining-graphql-connections/)
+- [Cursors](https://javamana.com/2021/01/20210119090856618r.html)
