@@ -3,6 +3,7 @@ package com.example.springbootgraphql.context;
 import com.example.springbootgraphql.context.dataloader.DataLoaderRegistryFactory;
 import graphql.kickstart.execution.context.GraphQLContext;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContext;
+import graphql.kickstart.servlet.context.DefaultGraphQLWebSocketContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +54,11 @@ public class CustomGraphQLContextBuilder implements GraphQLServletContextBuilder
   @Override
   public GraphQLContext build(Session session, HandshakeRequest handshakeRequest) {
     /** Currently not supporting web sockets so throw exception */
-    throw new IllegalStateException("Unsupported.");
+    //    throw new IllegalStateException("Unsupported.");
+    return DefaultGraphQLWebSocketContext.createWebSocketContext()
+        .with(session)
+        .with(handshakeRequest)
+        .build();
   }
 
   @Override

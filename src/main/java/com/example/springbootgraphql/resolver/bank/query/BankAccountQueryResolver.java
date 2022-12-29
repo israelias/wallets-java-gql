@@ -1,6 +1,6 @@
 package com.example.springbootgraphql.resolver.bank.query;
 
-import com.example.springbootgraphql.BankAccountRepository;
+import com.example.springbootgraphql.repository.BankAccountRepository;
 import com.example.springbootgraphql.connection.CursorUtil;
 import com.example.springbootgraphql.context.CustomGraphQLContext;
 import com.example.springbootgraphql.domain.bank.BankAccount;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,6 +54,7 @@ public class BankAccountQueryResolver implements GraphQLQueryResolver {
    * @param environment {@link DataFetchingEnvironment} as last param created once
    * @return a {@link BankAccount} instance
    */
+  @PreAuthorize("hasAuthority('get:bank_account')")
   public BankAccount bankAccount(UUID id, DataFetchingEnvironment environment) {
     log.info("Retrieving bank account id: {}", id);
 

@@ -18,13 +18,17 @@ graphql:
     headers:
       Authorization: Bearer TOKEN
       user_id: IDJ|Elias
+      user_roles: get:bank_account
+    settings:
+      prettier:
+        use-tabs: true
     tabs:
       - name: Bank account sample query
         query: classpath:playground/bank_account.graphql
         variables: classpath:playground/bank_account_variables.json
-  annotations:
-    base-package: com.example.springbootgraphql
-  schema-strategy: annotations
+  #  annotations:
+  #    base-package: com.example.springbootgraphql
+  #  schema-strategy: annotations
 
   # enabled: true
 

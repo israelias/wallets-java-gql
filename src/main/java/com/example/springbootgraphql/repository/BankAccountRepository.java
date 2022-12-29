@@ -1,4 +1,4 @@
-package com.example.springbootgraphql;
+package com.example.springbootgraphql.repository;
 
 import static java.util.UUID.fromString;
 

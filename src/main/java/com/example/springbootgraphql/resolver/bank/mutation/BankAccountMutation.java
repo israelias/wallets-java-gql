@@ -3,6 +3,7 @@ package com.example.springbootgraphql.resolver.bank.mutation;
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Currency;
 import com.example.springbootgraphql.domain.bank.input.CreateBankAccountInput;
+import com.example.springbootgraphql.publisher.BankAccountPublisher;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -55,15 +56,37 @@ import org.springframework.validation.annotation.Validated;
 public class BankAccountMutation implements GraphQLMutationResolver {
 
   private final Clock clock;
+  private final BankAccountPublisher bankAccountPublisher;
 
   public BankAccount createBankAccount(@Valid CreateBankAccountInput input) {
     log.info("Creating bank account for {}", input);
+    return getBankAccount(UUID.randomUUID());
+  }
 
-    return BankAccount.builder()
-        .id(UUID.randomUUID())
-        .currency(Currency.PHP)
-        .createdAt(ZonedDateTime.now(clock))
-        .createdOn(LocalDate.now(clock))
-        .build();
+  /** Schema Directive Validation (Chapter 32) */
+  public BankAccount updateBankAccount(UUID id, String name, int age) {
+    log.info("Updating bank account for {}. Name: {}, age: {}", id, name, age);
+    return getBankAccount(id);
+  }
+
+  private BankAccount getBankAccount(UUID id) {
+    var bankAccount =
+        BankAccount.builder()
+            .id(id)
+            .currency(Currency.PHP)
+            .createdAt(ZonedDateTime.now(clock))
+            .createdOn(LocalDate.now(clock))
+            .build();
+
+    /** Subscription (Chapter 33) */
+    bankAccountPublisher.publish(bankAccount);
+
+    return bankAccount;
+    //    return BankAccount.builder()
+    //        .id(UUID.randomUUID())
+    //        .currency(Currency.PHP)
+    //        .createdAt(ZonedDateTime.now(clock))
+    //        .createdOn(LocalDate.now(clock))
+    //        .build();
   }
 }

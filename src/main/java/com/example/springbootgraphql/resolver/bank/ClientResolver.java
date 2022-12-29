@@ -3,6 +3,7 @@ package com.example.springbootgraphql.resolver.bank;
 import com.example.springbootgraphql.domain.bank.BankAccount;
 import com.example.springbootgraphql.domain.bank.Client;
 import com.example.springbootgraphql.util.CorrelationIdPropagationExecutor;
+import com.example.springbootgraphql.util.ExecutorFactory;
 import graphql.GraphQLException;
 import graphql.execution.DataFetcherResult;
 import graphql.kickstart.execution.error.GenericGraphQLError;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,9 +44,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    * @see java.util.concurrent.Executors
    * @see Runtime
    */
-  private final Executor executorService =
-      CorrelationIdPropagationExecutor.wrap(
-          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+  private final Executor executor = ExecutorFactory.newExecutor();
 
   /**
    * client
@@ -64,7 +64,7 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
    *     CompletableFuture}.
    */
   public CompletableFuture<Client> client(BankAccount bankAccount) {
-    // log.info("Stop me debugging");
+    log.info("Stop me debugging");
     // TODO client should be a separate service to hook into to retrieve clients with different info
     return CompletableFuture.supplyAsync(
         () -> {
@@ -75,6 +75,6 @@ public class ClientResolver implements GraphQLResolver<BankAccount> {
               .lastName("Wrubel")
               .build();
         },
-        executorService);
+        executor);
   }
 }
