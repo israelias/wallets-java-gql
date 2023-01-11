@@ -20,7 +20,7 @@
   <properties>
     <java.version>11</java.version>
     <pmd.version>3.11.0</pmd.version>
-    <graphql.version>11.0.0</graphql.version>
+    <graphql.version>11.1.0</graphql.version>
     <!-- 16.0.0 not on central -->
     <graphql.extended.scalars.version>15.0.0</graphql.extended.scalars.version>
     <graphql.extended.validation.version>16.0.0</graphql.extended.validation.version>
