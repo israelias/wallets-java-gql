@@ -161,7 +161,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.3.9.RELEASE</version>
+      <version>3.5.3</version>
     </dependency>
 
     <!-- GraphQL Spring Boot Starter Test -->
