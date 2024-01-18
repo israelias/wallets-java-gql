@@ -32,6 +32,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
+    <option name="workspaceImportForciblyTurnedOn" value="true" />
   </component>
   <component name="PDMPlugin">
     <option name="customRuleSets">
