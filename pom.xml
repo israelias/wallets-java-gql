@@ -23,7 +23,7 @@
     <graphql.version>11.0.0</graphql.version>
     <!-- 16.0.0 not on central -->
     <graphql.extended.scalars.version>15.0.0</graphql.extended.scalars.version>
-    <graphql.extended.validation.version>16.0.0</graphql.extended.validation.version>
+    <graphql.extended.validation.version>20.0-validator-6.2.0.Final</graphql.extended.validation.version>
     <!-- For graphql-java-tools -->
     <!--    <kotlin.version>1.5.0</kotlin.version>-->
 
