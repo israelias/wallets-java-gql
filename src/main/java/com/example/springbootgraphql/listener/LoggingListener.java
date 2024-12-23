@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This listener is shared among threads, which is why we don't save any state in the listener
  * object. Here a new callback is returned per method invocation. If we want to save some state on
- * the thread, we would implement the use of ThreadLocal
+ * the thread, we would implement the use of ThreadLocal.
  */
 @Slf4j
 @Component
@@ -33,9 +33,9 @@ public class LoggingListener implements GraphQLServletListener {
   /**
    * Log the completed GraphQL request execution time.
    *
-   * @param request {@link HttpServletRequest}
-   * @param response {@link HttpServletResponse}
-   * @return {@link RequestCallback}
+   * @param request {@link HttpServletRequest} the HTTP request
+   * @param response {@link HttpServletResponse} the HTTP response
+   * @return {@link RequestCallback} a callback to handle request lifecycle events
    */
   @Override
   public RequestCallback onRequest(HttpServletRequest request, HttpServletResponse response) {
@@ -50,6 +50,13 @@ public class LoggingListener implements GraphQLServletListener {
         // RequestCallback.super.onSuccess(request, response);
       }
 
+      /**
+       * Handle errors during the request.
+       *
+       * @param request {@link HttpServletRequest} the HTTP request
+       * @param response {@link HttpServletResponse} the HTTP response
+       * @param throwable the exception thrown during request processing
+       */
       @Override
       public void onError(
           HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
@@ -58,6 +65,12 @@ public class LoggingListener implements GraphQLServletListener {
         log.error("Caught exception in listener.", throwable);
       }
 
+      /**
+       * Perform final actions after the request is completed.
+       *
+       * @param request {@link HttpServletRequest} the HTTP request
+       * @param response {@link HttpServletResponse} the HTTP response
+       */
       @Override
       public void onFinally(HttpServletRequest request, HttpServletResponse response) {
         // RequestCallback.super.onFinally(request, response);

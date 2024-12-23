@@ -16,14 +16,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * BankAccountMutation
+ * BankAccountMutation: Resolver for the BankAccount type in the GraphQL schema.
  *
+ * <p>The {@link BankAccountMutation} class is a Spring component that implements the {@link GraphQLMutationResolver} interface,
+ * allowing it to handle GraphQL mutations related the {@link BankAccount} type in the GraphQL schema.
+ * This class is annotated with {@link Slf4j} for logging, {@link Component} to indicate that it is a Spring-managed bean,
+ * {@link RequiredArgsConstructor} to generate a constructor with required arguments, and {@link Validated} to enable validation.
+ * Overall, the {@link BankAccountMutation} class provides methods to create and update bank accounts, with logging and event publishing capabilities.
+ *
+ * <p>Notes:
  * <p>Specifying DataFetchingEnvironment as the last parameter in the resolver ensures that the
  * framework will automatically inject this in and give you access to it. If there are no
  * parameters, we can specify it as the only one on the resolver.
  *
  * <p>{@link com.example.springbootgraphql.resolver.bank.query.BankAccountQueryResolver
- * BankAccountQueryResolver} The Environment allows us access to key methods and functionalities
+ * BankAccountQueryResolver} The Environment allows access to key methods and functionalities
  * such as
  *
  * <ul>
@@ -55,20 +62,53 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class BankAccountMutation implements GraphQLMutationResolver {
 
+  /**
+   * The {@code clock} field is a {@link Clock} instance that provides access to the current date and time.
+   * It is injected via {@link RequiredArgsConstructor}.
+   */
   private final Clock clock;
+  /**
+   * The {@code bankAccountPublisher} field is a {@link BankAccountPublisher} instance that provides the ability to publish bank account events.
+   * It is injected via {@link RequiredArgsConstructor}.
+   */
   private final BankAccountPublisher bankAccountPublisher;
 
+  /**
+   * <p>The {@code createBankAccount} method creates a new bank account using the provided {@link CreateBankAccountInput}.
+   * It logs the creation process and calls the private {@link BankAccountMutation#getBankAccount} method to generate a new
+   * {@link BankAccount} object with a random UUID:
+   *
+   * @param input the input data instance of {@link CreateBankAccountInput} for creating a bank account
+   * @return the created bank account
+   */
   public BankAccount createBankAccount(@Valid CreateBankAccountInput input) {
     log.info("Creating bank account for {}", input);
     return getBankAccount(UUID.randomUUID());
   }
 
-  /** Schema Directive Validation (Chapter 32) */
+  /**
+   * <p>The {@code updateBankAccount} method updates an existing bank account identified by its {@link UUID}.
+   * It logs the update process and calls the {@link BankAccountMutation#getBankAccount(UUID)} method to retrieve the updated {@link BankAccount} object.
+   *
+   * <p>Notes: Schema Directive Validation (Chapter 32)
+   *
+   * @param id the {@link UUID} of the bank account to update
+   * @param name the new {@link String} name for the bank account
+   * @param age the new {@code int} age for the bank account
+   * @return the updated bank account
+   */
   public BankAccount updateBankAccount(UUID id, String name, int age) {
     log.info("Updating bank account for {}. Name: {}, age: {}", id, name, age);
     return getBankAccount(id);
   }
 
+  /**
+   * The private {@code getBankAccount} method generates a {@link BankAccount} object with the given {@link UUID}, current {@link BankAccountMutation#clock}, and predefined {@link Currency}.
+   * It then publishes the bank account event using the {@link BankAccountPublisher#publish(BankAccount)} method.
+   *
+   * @param id the {@link UUID} of the bank account to retrieve
+   * @return the retrieved bank account
+   */
   private BankAccount getBankAccount(UUID id) {
     var bankAccount =
         BankAccount.builder()

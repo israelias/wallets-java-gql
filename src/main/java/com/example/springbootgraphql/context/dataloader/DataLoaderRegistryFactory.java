@@ -18,6 +18,12 @@ import org.dataloader.DataLoaderRegistry;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.stereotype.Component;
 
+/**
+ * Factory for creating DataLoaderRegistry instances.
+ *
+ * <p>This factory is responsible for creating and configuring DataLoaderRegistry instances,
+ * including the registration of specific DataLoaders such as the balance DataLoader.
+ */
 @Component
 @RequiredArgsConstructor
 public class DataLoaderRegistryFactory {
@@ -29,6 +35,15 @@ public class DataLoaderRegistryFactory {
           new DelegatingSecurityContextExecutorService(
               Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())));
 
+  /**
+   * Creates a DataLoaderRegistry for the specified user ID.
+   *
+   * <p>This method creates a new DataLoaderRegistry and registers the balance DataLoader
+   * for the given user ID.
+   *
+   * @param userId the user ID for which to create the DataLoaderRegistry
+   * @return a DataLoaderRegistry configured with the balance DataLoader
+   */
   public DataLoaderRegistry create(String userId) {
     var registry = new DataLoaderRegistry();
 
@@ -38,12 +53,13 @@ public class DataLoaderRegistryFactory {
   }
 
   /**
-   * Now maps <k, context> pare for balance service. previously returned for a Set Now allows us to
-   * add logic to the mapped data in balance service.
+   * Creates a DataLoader for fetching balances.
    *
-   * @param userId
-   * @return DataLoader that collections a set of {@code bankAccountIds} and provides the set into
-   *     the {@code getBalanceFor()} service, which executes a batch request.
+   * <p>This method creates a DataLoader that collects a set of bank account IDs and provides
+   * the set to the balance service, which executes a batch request to fetch the balances.
+   *
+   * @param userId the user ID for which to create the DataLoader
+   * @return a DataLoader for fetching balances
    */
   private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
 

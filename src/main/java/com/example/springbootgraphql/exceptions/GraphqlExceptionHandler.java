@@ -19,16 +19,34 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Component
 public class GraphqlExceptionHandler {
 
+  /**
+   * Handles {@link GraphQLException} and {@link ConstraintViolationException}.
+   *
+   * @param e the exception to handle
+   * @return a {@link ThrowableGraphQLError} representing the handled exception
+   */
   @ExceptionHandler({GraphQLException.class, ConstraintViolationException.class})
   public ThrowableGraphQLError handle(Exception e) {
     return new ThrowableGraphQLError(e);
   }
 
+  /**
+   * Handles  {@link AccessDeniedException}.
+   *
+   * @param e the exception to handle
+   * @return a {@link ThrowableGraphQLError} representing the handled exception with a {@code FORBIDDEN} status
+   */
   @ExceptionHandler(AccessDeniedException.class)
   public ThrowableGraphQLError handle(AccessDeniedException e) {
     return new ThrowableGraphQLError(e, HttpStatus.FORBIDDEN.getReasonPhrase());
   }
 
+  /**
+   * Handles {@link RuntimeException}.
+   *
+   * @param e the exception to handle
+   * @return a {@link ThrowableGraphQLError} representing the handled exception with an {@code INTERNAL_SERVER_ERROR} status
+   */
   @ExceptionHandler(RuntimeException.class)
   public ThrowableGraphQLError handle(RuntimeException e) {
     return new ThrowableGraphQLError(e, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());

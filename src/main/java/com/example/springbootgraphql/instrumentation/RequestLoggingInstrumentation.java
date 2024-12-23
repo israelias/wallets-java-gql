@@ -61,9 +61,7 @@ public class RequestLoggingInstrumentation extends SimpleInstrumentation {
      * line meets us again at the very edge, where we clear the MDC.
      *
      * <p>Thus we are using the executionID because it is assigned from the graphql server.
-     * Otherwise you can take it from the request header!
-     *
-     *
+     * Otherwise, you can take it from the request header!
      */
     MDC.put(CORRELATION_ID, parameters.getExecutionInput().getExecutionId().toString());
 

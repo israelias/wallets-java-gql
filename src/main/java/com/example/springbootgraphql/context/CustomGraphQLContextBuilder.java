@@ -26,21 +26,25 @@ public class CustomGraphQLContextBuilder implements GraphQLServletContextBuilder
   private final DataLoaderRegistryFactory dataLoaderRegistryFactory;
 
   /**
-   * Provides the hook to build a custom GraphQL Context wrapper.
+   * Builds a custom GraphQL context for HTTP requests.
    *
-   * <p>{@link GraphQLContext} is the object made available by the `DataFetchingEnvironment`'s
-   * {@code getContext()} method.
+   * <p>This method constructs a {@link DefaultGraphQLServletContext} with the provided
+   * {@link HttpServletRequest} and {@link HttpServletResponse}, and includes a DataLoaderRegistry
+   * created using the user ID extracted from the request header. The resulting context is wrapped
+   * in a {@link CustomGraphQLContext} which includes the user ID.
    *
-   * @param httpServletRequest
-   * @param httpServletResponse
-   * @return
+   * @param httpServletRequest the HTTP servlet request
+   * @param httpServletResponse the HTTP servlet response
+   * @return a custom GraphQL context containing the user ID and the servlet context
    */
   @Override
   public GraphQLContext build(
       HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
+    /* Extract the user ID from the request header */
     var userId = httpServletRequest.getHeader("user_id");
 
+    /* Create the default GraphQL servlet context with the request, response, and DataLoaderRegistry */
     var context =
         DefaultGraphQLServletContext.createServletContext()
             .with(httpServletRequest)
@@ -48,12 +52,24 @@ public class CustomGraphQLContextBuilder implements GraphQLServletContextBuilder
             .with(dataLoaderRegistryFactory.create(userId))
             .build();
 
+    /* Return a new custom GraphQL context with the user ID and the created context */
     return new CustomGraphQLContext(userId, context);
   }
 
+  /**
+   * Builds a custom GraphQL context for WebSocket sessions.
+   *
+   * <p>This method constructs a {@link DefaultGraphQLWebSocketContext} with the provided
+   * {@link Session} and {@link HandshakeRequest}. Currently, it does not support custom WebSocket
+   * contexts and returns the default context.
+   *
+   * @param session the WebSocket session
+   * @param handshakeRequest the WebSocket handshake request
+   * @return a default GraphQL WebSocket context
+   */
   @Override
   public GraphQLContext build(Session session, HandshakeRequest handshakeRequest) {
-    /** Currently not supporting web sockets so throw exception */
+    /* Currently not supporting web sockets so throw exception */
     //    throw new IllegalStateException("Unsupported.");
     return DefaultGraphQLWebSocketContext.createWebSocketContext()
         .with(session)
@@ -61,9 +77,17 @@ public class CustomGraphQLContextBuilder implements GraphQLServletContextBuilder
         .build();
   }
 
+  /**
+   * Builds a custom GraphQL context without any parameters.
+   *
+   * <p>This method is not supported and throws an {@link IllegalStateException}.
+   *
+   * @return nothing, as this method always throws an exception
+   * @throws IllegalStateException always thrown to indicate unsupported operation
+   */
   @Override
   public GraphQLContext build() {
-    /** Currently not supporting a custom context build so throw exception */
+    /* Currently not supporting a custom context build so throw exception */
     throw new IllegalStateException("Unsupported.");
   }
 }

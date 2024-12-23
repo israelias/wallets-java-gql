@@ -12,17 +12,24 @@ import org.dataloader.DataLoader;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+/**
+ * Resolver for the BankAccount type in the GraphQL schema.
+ *
+ * <p>This resolver provides methods to fetch additional data for the BankAccount type, such as the balance.
+ */
 @Slf4j
 @Component
 public class BankAccountResolver implements GraphQLResolver<BankAccount> {
 
   /**
-   * BalanceResolver
+   * Fetches the balance for a given bank account.
    *
-   * @param bankAccount
-   * @param environment
-   * @return dataLoader#load() Function that loads the bankAccount id to the dataLoader {@code
-   *     bankAccount.getID()}
+   * <p>This method uses a DataLoader to asynchronously fetch the balance for the specified bank account.
+   * The method is secured with a pre-authorization check to ensure the user has the required authority.
+   *
+   * @param bankAccount the bank account for which to fetch the balance
+   * @param environment the data fetching environment
+   * @return a CompletableFuture containing the balance of the bank account
    */
   @PreAuthorize("hasAuthority('get:bank_account_balance')")
   public CompletableFuture<BigDecimal> balance(

@@ -12,12 +12,27 @@ import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for handling balance-related operations.
+ *
+ * <p>This service provides methods to fetch balances for a set of bank accounts.
+ */
 @Slf4j
 @Service
 public class BalanceService {
 
+  /**
+   * Fetches the balance for a set of bank accounts.
+   *
+   * <p>This method logs the bank account IDs and user ID, and returns a map of bank account IDs
+   * to their corresponding balances.
+   *
+   * @param bankAccountIds a map of bank account IDs to BankAccount objects
+   * @param userId the user ID for which to fetch the balances
+   * @return a map of bank account IDs to their corresponding balances
+   */
   public Map<UUID, BigDecimal> getBalanceFor(Map<UUID, BankAccount> bankAccountIds, String userId) {
-    // logs map of id to entire bankaccount object associated with that id
+    // logs map of id to entire bankAccount object associated with that id
     log.info("Requesting bank accounts: {} for user ID: {}", bankAccountIds, userId);
     // original set of ids
     var ids = bankAccountIds.keySet();

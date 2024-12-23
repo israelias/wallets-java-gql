@@ -52,7 +52,7 @@ public class CustomGraphQLContext implements GraphQLServletContext {
     return context.getSubject();
   }
 
-  /** @return the Dataloader registry to use for the execution. Must not return <code>null</code> */
+  /** @return the DataLoader registry to use for the execution. Must not return <code>null</code> */
   @Override
   public @NonNull DataLoaderRegistry getDataLoaderRegistry() {
     return context.getDataLoaderRegistry();
